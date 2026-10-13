@@ -8,23 +8,19 @@
 #include <iostream>
 #include <cstdlib>
 
-void Application::errorCallback(int error, const char* description)
-{
-    // Forward to the instance's error callback if needed
+void Application::errorCallback(int error, const char* description) {
     std::cerr << "GLFW Error (" << error << "): " << description << std::endl;
 }
 
 Application::Application()
     : window(nullptr) {}
 
-Application::~Application()
-{
+Application::~Application() {
     glfwDestroyWindow(window);
     glfwTerminate();
 }
 
-void Application::initialization()
-{
+void Application::initialization() {
     glfwSetErrorCallback(errorCallback);
     if (!glfwInit()) {
         std::cerr << "ERROR: could not start GLFW3" << std::endl;
@@ -36,18 +32,16 @@ void Application::initialization()
     glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GL_TRUE);
     glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
 
-    window = glfwCreateWindow(800, 600, "OpenGL Application", nullptr, nullptr);
+    window = glfwCreateWindow(800, 600, "ZPG", nullptr, nullptr);
     if (!window) {
         std::cerr << "ERROR: could not create GLFW window" << std::endl;
         glfwTerminate();
         std::exit(EXIT_FAILURE);
     }
 
-    // Make the window's context current
     glfwMakeContextCurrent(window);
-    glfwSwapInterval(1); // Enable vsync
+    glfwSwapInterval(1);
 
-    // Initialize GLEW
     glewExperimental = GL_TRUE;
     GLenum err = glewInit();
     if (GLEW_OK != err) {
@@ -71,8 +65,7 @@ void Application::initialization()
     std::cout << "===============================\n" << std::endl;
 }
 
-void Application::createScenes()
-{
+void Application::createScenes() {
     scenes.push_back(Scene1::create());
     scenes.push_back(Scene2::create());
     scenes.push_back(Scene3::create());
@@ -80,8 +73,7 @@ void Application::createScenes()
     scenes.push_back(Scene5::create());
 }
 
-void Application::run()
-{
+void Application::run() {
     glEnable(GL_DEPTH_TEST);
 
     glClearColor(0.59f, 0.76f, 0.92f, 1.0f);

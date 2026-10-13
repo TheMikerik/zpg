@@ -1,6 +1,5 @@
 // TransformNode.h
-#ifndef TRANSFORMNODE_H
-#define TRANSFORMNODE_H
+#pragma once
 
 #include <glm/glm.hpp>
 
@@ -10,5 +9,3 @@ public:
 
     virtual glm::mat4 getMatrix() const = 0;
 };
-
-#endif // TRANSFORMNODE_H

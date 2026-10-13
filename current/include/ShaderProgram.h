@@ -1,5 +1,4 @@
-#ifndef SHADERPROGRAM_H
-#define SHADERPROGRAM_H
+#pragma once
 
 #include <string>
 #include <glm/glm.hpp>
@@ -30,5 +29,3 @@ private:
     void linkProgram(GLuint vertexShader, GLuint fragmentShader);
     GLint getUniformLocation(const std::string& name) const;
 };
-
-#endif // SHADERPROGRAM_H

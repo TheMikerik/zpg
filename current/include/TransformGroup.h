@@ -1,6 +1,5 @@
 // TransformGroup.h
-#ifndef TRANSFORMGROUP_H
-#define TRANSFORMGROUP_H
+#pragma once
 
 #include "TransformNode.h"
 #include <memory>
@@ -16,5 +15,3 @@ public:
 private:
     std::vector<std::shared_ptr<TransformNode>> children;
 };
-
-#endif // TRANSFORMGROUP_H

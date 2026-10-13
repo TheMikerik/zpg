@@ -28,6 +28,7 @@ TARGET_PATH = build/$(TARGET)
 SRCS = \
     src/main.cpp \
     src/Application.cpp \
+    src/Controller.cpp \
     src/Scene.cpp \
     src/Scene1.cpp \
     src/Scene2.cpp \

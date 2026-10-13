@@ -1,6 +1,5 @@
 // DrawableObject.h
-#ifndef DRAWABLEOBJECT_H
-#define DRAWABLEOBJECT_H
+#pragma once
 
 #include "Model.h"
 #include "ShaderProgram.h"
@@ -44,5 +43,3 @@ private:
     // Composite of everything above; the model matrix is taken from here
     TransformGroup modelTransform;
 };
-
-#endif // DRAWABLEOBJECT_H

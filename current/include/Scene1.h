@@ -1,5 +1,4 @@
-#ifndef SCENE1_H
-#define SCENE1_H
+#pragma once
 
 #include "Scene.h"
 #include "ShaderProgram.h"
@@ -9,5 +8,3 @@ class Scene1 {
 public:
     static std::shared_ptr<Scene> create();
 };
-
-#endif // SCENE1_H

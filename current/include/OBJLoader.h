@@ -1,5 +1,4 @@
-#ifndef OBJLOADER_H
-#define OBJLOADER_H
+#pragma once
 
 #include <string>
 #include <vector>
@@ -17,5 +16,3 @@ private:
 
     static std::vector<float> createVertexArray(const std::vector<Vertex>& vertices);
 };
-
-#endif // OBJLOADER_H

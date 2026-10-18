@@ -1,5 +1,12 @@
 #include "Scene.h"
 
+void Scene::setCamera(Camera* camera)
+{
+    for (DrawableObject& drawable : drawables) {
+        drawable.shader.setCamera(camera);
+    }
+}
+
 void Scene::update(float time)
 {
     for (DrawableObject& drawable : drawables) {

@@ -1,4 +1,5 @@
 #include "ShaderProgram.h"
+#include "Camera.h"
 #include <glm/gtc/type_ptr.hpp>
 #include <fstream>
 #include <sstream>
@@ -24,7 +25,7 @@ ShaderProgram::ShaderProgram(const std::string& vertexPath, const std::string& f
 }
 
 ShaderProgram::ShaderProgram(ShaderProgram&& other) noexcept
-    : programID(other.programID)
+    : programID(other.programID), camera(other.camera)
 {
     other.programID = 0;
 }
@@ -37,6 +38,18 @@ ShaderProgram::~ShaderProgram()
 void ShaderProgram::use() const
 {
     glUseProgram(programID);
+}
+
+void ShaderProgram::setCamera(Camera* newCamera)
+{
+    camera = newCamera;
+}
+
+void ShaderProgram::applyCamera() const
+{
+    if (camera) {
+        camera->sendMatricesTo(*this);
+    }
 }
 
 std::string ShaderProgram::loadShaderSource(const std::string& filePath) const

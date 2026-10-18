@@ -36,6 +36,7 @@ SRCS = \
     src/Scene4.cpp \
     src/Scene5.cpp \
     src/DrawableObject.cpp \
+    src/Camera.cpp \
     src/ShaderProgram.cpp \
     src/Model.cpp \
     src/Transformation.cpp \

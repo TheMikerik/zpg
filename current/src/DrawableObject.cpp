@@ -22,6 +22,7 @@ void DrawableObject::render() const
 
     glm::mat4 modelMatrix = nodeMatrix * dynamicPart.getMatrix() * transformation.getMatrix();
     shader.setUniform("modelMatrix", modelMatrix);
+    shader.applyCamera();
 
     model.bind();
     glDrawArrays(GL_TRIANGLES, 0, model.getVertexCount());

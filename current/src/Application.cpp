@@ -13,7 +13,7 @@ void Application::errorCallback(int error, const char* description) {
 }
 
 Application::Application()
-    : window(nullptr) {}
+    : window(nullptr), camera(800.0f / 600.0f) {}
 
 Application::~Application() {
     glfwDestroyWindow(window);
@@ -78,9 +78,19 @@ void Application::run() {
 
     glClearColor(0.59f, 0.76f, 0.92f, 1.0f);
     createScenes();
-    Controller controller(window, scenes);
+    for (Scene& scene : scenes) {
+        scene.setCamera(&camera);
+    }
+    Controller controller(window, scenes, camera);
 
     while (!glfwWindowShouldClose(window)) {
+        int width, height;
+        glfwGetFramebufferSize(window, &width, &height);
+        if (height > 0) {
+            glViewport(0, 0, width, height);
+            camera.setAspectRatio(static_cast<float>(width) / height);
+        }
+
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
         int currentSceneIndex = controller.getCurrentSceneIndex();

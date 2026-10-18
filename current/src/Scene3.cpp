@@ -8,15 +8,15 @@
 
 namespace {
 
-// tato funkce byla vygenerovana AI
+const float FOREST_RANGE = 4.0f;
+
 float randomInRange(std::mt19937& gen, float min, float max)
 {
     std::uniform_real_distribution<float> dist(min, max);
     return dist(gen);
 }
 
-void addRandomInstance(DrawableObject& drawable, std::mt19937& gen,
-                       float yMin, float yMax, float scaleMin, float scaleMax)
+void addRandomInstance(DrawableObject& drawable, std::mt19937& gen, float scaleMin, float scaleMax)
 {
     Transformation scale;
     scale.scale(glm::vec3(randomInRange(gen, scaleMin, scaleMax)));
@@ -24,10 +24,10 @@ void addRandomInstance(DrawableObject& drawable, std::mt19937& gen,
     Transformation rotation;
     rotation.rotate(randomInRange(gen, 0.0f, 360.0f), glm::vec3(0.0f, 1.0f, 0.0f));
 
-    float x = randomInRange(gen, -1.0f, 1.0f);
-    float y = randomInRange(gen, yMin, yMax);
+    float x = randomInRange(gen, -FOREST_RANGE, FOREST_RANGE);
+    float z = randomInRange(gen, -FOREST_RANGE, FOREST_RANGE);
     Transformation position;
-    position.translate(glm::vec3(x, y, 0.0f));
+    position.translate(glm::vec3(x, 0.0f, z));
 
     TransformGroup instance;
     instance.add(scale);
@@ -52,13 +52,13 @@ Scene Scene3::create()
     for (int i = 0; i < 12; ++i) {
         scene.drawables.emplace_back(Model(bushesVertices),
                                      ShaderProgram("./shaders/vertex_shader.glsl", "./shaders/fragment_shader_green.glsl"));
-        addRandomInstance(scene.drawables.back(), gen, -0.9f, -0.7f, 0.12f, 0.2f);
+        addRandomInstance(scene.drawables.back(), gen, 0.12f, 0.2f);
     }
 
     for (int i = 0; i < 15; ++i) {
         scene.drawables.emplace_back(Model(treeVertices),
                                      ShaderProgram("./shaders/vertex_shader.glsl", "./shaders/fragment_shader_purple.glsl"));
-        addRandomInstance(scene.drawables.back(), gen, -0.65f, -0.45f, 0.08f, 0.14f);
+        addRandomInstance(scene.drawables.back(), gen, 0.08f, 0.14f);
     }
 
     scene.drawables.emplace_back(Model(sphereVertices),

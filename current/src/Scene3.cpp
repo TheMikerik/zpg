@@ -2,8 +2,11 @@
 #include "../models/bushes.h"
 #include "../models/tree.h"
 #include "../models/sphere.h"
+#include "../models/clock.h"
 #include "Transformation.h"
 #include "TransformGroup.h"
+#include <glm/gtc/constants.hpp>
+#include <ctime>
 #include <random>
 
 namespace {
@@ -14,6 +17,19 @@ float randomInRange(std::mt19937& gen, float min, float max)
 {
     std::uniform_real_distribution<float> dist(min, max);
     return dist(gen);
+}
+
+void setClockHands(const ShaderProgram& shader)
+{
+    std::time_t now = std::time(nullptr);
+    std::tm local = *std::localtime(&now);
+    float seconds = static_cast<float>(local.tm_sec);
+    float minutes = local.tm_min + seconds / 60.0f;
+    float hours = (local.tm_hour % 12) + minutes / 60.0f;
+
+    shader.setUniform("hourAngle", hours / 12.0f * glm::two_pi<float>());
+    shader.setUniform("minuteAngle", minutes / 60.0f * glm::two_pi<float>());
+    shader.setUniform("secondAngle", seconds / 60.0f * glm::two_pi<float>());
 }
 
 void addRandomInstance(DrawableObject& drawable, std::mt19937& gen, float scaleMin, float scaleMax)
@@ -66,6 +82,15 @@ Scene Scene3::create()
     DrawableObject& sunDrawable = scene.drawables.back();
     sunDrawable.transformation.translate(glm::vec3(0.7f, 0.7f, 0.0f));
     sunDrawable.transformation.scale(glm::vec3(0.15f));
+
+    std::vector<float> clockVertices(std::begin(clockModel), std::end(clockModel));
+    scene.drawables.emplace_back(Model(clockVertices, true),
+                                 ShaderProgram("./shaders/vertex_shader_clock.glsl", "./shaders/fragment_shader.glsl"));
+    DrawableObject& clockDrawable = scene.drawables.back();
+    clockDrawable.transformation.translate(glm::vec3(0.0f, 1.0f, -1.5f));
+    clockDrawable.transformation.rotate(180.0f, glm::vec3(0.0f, 1.0f, 0.0f));
+    clockDrawable.transformation.scale(glm::vec3(-0.35f, 0.35f, 0.35f));
+    clockDrawable.updateUniforms = setClockHands;
 
     return scene;
 }

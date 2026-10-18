@@ -5,7 +5,9 @@
 
 class Model {
 public:
-    Model(const std::vector<float>& vertices);
+    // withNormals = false: vrchol je 6 hodnot (pozice, barva)
+    // withNormals = true:  vrchol je 9 hodnot (pozice, normála, barva)
+    Model(const std::vector<float>& vertices, bool withNormals = false);
     Model(Model&& other) noexcept;
     ~Model();
 

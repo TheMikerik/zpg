@@ -19,6 +19,9 @@ void DrawableObject::update(float time)
 void DrawableObject::render() const
 {
     shader.use();
+    if (updateUniforms) {
+        updateUniforms(shader);
+    }
 
     glm::mat4 modelMatrix = nodeMatrix * dynamicPart.getMatrix() * transformation.getMatrix();
     shader.setUniform("modelMatrix", modelMatrix);

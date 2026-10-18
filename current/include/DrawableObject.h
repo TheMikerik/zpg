@@ -8,6 +8,7 @@
 #include <glm/glm.hpp>
 
 using DynamicTransformation = std::function<Transformation(float time)>;
+using UniformUpdate = std::function<void(const ShaderProgram& shader)>;
 
 struct DrawableObject {
     DrawableObject(Model model, ShaderProgram shader);
@@ -25,4 +26,5 @@ struct DrawableObject {
     glm::mat4 nodeMatrix = glm::mat4(1.0f);
 
     DynamicTransformation dynamic;
+    UniformUpdate updateUniforms;
 };

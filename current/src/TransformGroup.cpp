@@ -1,9 +1,9 @@
 // TransformGroup.cpp
 #include "TransformGroup.h"
 
-void TransformGroup::add(std::shared_ptr<TransformNode> child)
+void TransformGroup::add(const TransformNode& child)
 {
-    children.push_back(std::move(child));
+    children.push_back(&child);
 }
 
 void TransformGroup::clear()
@@ -14,7 +14,7 @@ void TransformGroup::clear()
 glm::mat4 TransformGroup::getMatrix() const
 {
     glm::mat4 result(1.0f);
-    for (const auto& child : children) {
+    for (const TransformNode* child : children) {
         result = child->getMatrix() * result;
     }
     return result;

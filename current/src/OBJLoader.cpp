@@ -38,7 +38,6 @@ std::vector<float> OBJLoader::loadOBJ(const std::string& filePath)
             std::string vertex1, vertex2, vertex3;
             iss >> vertex1 >> vertex2 >> vertex3;
 
-            // Parse vertex format: v, v/vt, v/vt/vn, v//vn
             auto parseVertex = [&](const std::string& vertexStr) -> Vertex {
                 Vertex v;
                 std::istringstream viss(vertexStr);

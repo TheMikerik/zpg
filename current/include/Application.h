@@ -4,7 +4,6 @@
 #include <GL/glew.h>
 #include <GLFW/glfw3.h>
 #include <vector>
-#include <memory>
 
 class Application {
 public:
@@ -17,7 +16,7 @@ public:
 
 private:
     GLFWwindow* window;
-    std::vector<std::shared_ptr<Scene>> scenes;
+    std::vector<Scene> scenes;
 
     static void errorCallback(int error, const char* description);
 };

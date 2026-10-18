@@ -6,6 +6,7 @@
 class Model {
 public:
     Model(const std::vector<float>& vertices);
+    Model(Model&& other) noexcept;
     ~Model();
 
     void bind() const;

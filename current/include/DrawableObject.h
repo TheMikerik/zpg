@@ -1,45 +1,28 @@
-// DrawableObject.h
 #pragma once
 
 #include "Model.h"
 #include "ShaderProgram.h"
 #include "Transformation.h"
-#include "TransformGroup.h"
-#include <memory>
+#include "TransformNode.h"
 #include <functional>
 #include <glm/glm.hpp>
 
-// Dynamic transformation: returns the transformation for a given time (in seconds)
 using DynamicTransformation = std::function<Transformation(float time)>;
 
-class DrawableObject {
-public:
-    DrawableObject(std::shared_ptr<Model> model,
-                std::shared_ptr<ShaderProgram> shaderProgram,
-                const Transformation& transformation = Transformation());
+struct DrawableObject {
+    DrawableObject(Model model, ShaderProgram shader);
 
+    void addNode(const TransformNode& node);
+
+    void update(float time);
     void render() const;
 
-    void setTransformation(const Transformation& trans);
-    void setTransformation(const glm::mat4& matrix);
-    void addTransformation(const Transformation& trans);
-    Transformation& getTransformation();
+    Model model;
+    ShaderProgram shader;
 
-    // Pass nullptr to make the object static again
-    void setDynamicTransformation(DynamicTransformation dynamic);
-    void update(float time);
+    Transformation transformation;
+    Transformation dynamicPart;
+    glm::mat4 nodeMatrix = glm::mat4(1.0f);
 
-    // Adds any transformation node (leaf or group) to the composite of this object
-    void addNode(std::shared_ptr<TransformNode> node);
-
-private:
-    std::shared_ptr<Model> model;
-    std::shared_ptr<ShaderProgram> shaderProgram;
-
-    std::shared_ptr<Transformation> transformation;  // static part, edited by setters and keys
-    std::shared_ptr<Transformation> dynamicPart;     // refreshed every frame in update()
-    DynamicTransformation dynamicTransformation;
-
-    // Composite of everything above; the model matrix is taken from here
-    TransformGroup modelTransform;
+    DynamicTransformation dynamic;
 };

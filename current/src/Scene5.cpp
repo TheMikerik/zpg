@@ -1,13 +1,9 @@
 #include "Scene5.h"
-#include "Model.h"
-#include "DrawableObject.h"
-#include "Transformation.h"
-#include "TransformGroup.h"
 #include "../models/sun.h"
 #include "../models/earth.h"
 #include "../models/moon.h"
-#include <memory>
-#include <glm/glm.hpp>
+#include "Transformation.h"
+#include "TransformGroup.h"
 
 namespace {
 
@@ -19,24 +15,24 @@ const float EARTH_ORBIT = 0.6f;
 const float MOON_RADIUS = 0.025f;
 const float MOON_ORBIT = 0.2f;
 
-std::shared_ptr<Transformation> rotationNode(float degrees)
+Transformation rotationNode(float degrees)
 {
-    auto t = std::make_shared<Transformation>();
-    t->rotate(degrees, Y_AXIS);
+    Transformation t;
+    t.rotate(degrees, Y_AXIS);
     return t;
 }
 
-std::shared_ptr<Transformation> translationNode(float x)
+Transformation translationNode(float x)
 {
-    auto t = std::make_shared<Transformation>();
-    t->translate(glm::vec3(x, 0.0f, 0.0f));
+    Transformation t;
+    t.translate(glm::vec3(x, 0.0f, 0.0f));
     return t;
 }
 
-std::shared_ptr<Transformation> uniformScaleNode(float s)
+Transformation uniformScaleNode(float s)
 {
-    auto t = std::make_shared<Transformation>();
-    t->scale(glm::vec3(s));
+    Transformation t;
+    t.scale(glm::vec3(s));
     return t;
 }
 
@@ -55,53 +51,57 @@ std::vector<float> positionAndColor(const float (&data)[N])
 
 }
 
-std::shared_ptr<Scene> Scene5::create()
+Scene Scene5::create()
 {
-    auto scene = std::make_shared<Scene>();
-    auto shader = std::make_shared<ShaderProgram>("./shaders/vertex_shader.glsl", "./shaders/fragment_shader.glsl");
-
     std::vector<float> sunVertices = positionAndColor(sun);
     std::vector<float> earthVertices = positionAndColor(earth);
     std::vector<float> moonVertices = positionAndColor(moon);
 
-    auto sunModel = std::make_shared<Model>(sunVertices);
-    auto earthModel = std::make_shared<Model>(earthVertices);
-    auto moonModel = std::make_shared<Model>(moonVertices);
+    Scene scene;
 
-    auto sunDrawable = std::make_shared<DrawableObject>(sunModel, shader);
-    sunDrawable->setTransformation(*uniformScaleNode(SUN_RADIUS));
-    sunDrawable->setDynamicTransformation([](float time) {
-        auto spin = std::make_shared<TransformGroup>();
-        spin->add(rotationNode(time * 20.0f));
-        return Transformation(spin->getMatrix());
-    });
+    scene.drawables.emplace_back(Model(sunVertices),
+                                 ShaderProgram("./shaders/vertex_shader.glsl", "./shaders/fragment_shader.glsl"));
+    DrawableObject& sunDrawable = scene.drawables.back();
+    sunDrawable.transformation = uniformScaleNode(SUN_RADIUS);
+    sunDrawable.dynamic = [](float time) {
+        return rotationNode(time * 20.0f);
+    };
 
-    
-    auto earthDrawable = std::make_shared<DrawableObject>(earthModel, shader);
-    earthDrawable->setTransformation(*uniformScaleNode(EARTH_RADIUS));
-    earthDrawable->setDynamicTransformation([](float time) {
-        auto earthPlace = std::make_shared<TransformGroup>();
-        earthPlace->add(rotationNode(time * 360.0f));
-        earthPlace->add(translationNode(EARTH_ORBIT));
-        earthPlace->add(rotationNode(time * 45.0f));
-        return Transformation(earthPlace->getMatrix());
-    });
+    scene.drawables.emplace_back(Model(earthVertices),
+                                 ShaderProgram("./shaders/vertex_shader.glsl", "./shaders/fragment_shader.glsl"));
+    DrawableObject& earthDrawable = scene.drawables.back();
+    earthDrawable.transformation = uniformScaleNode(EARTH_RADIUS);
+    earthDrawable.dynamic = [](float time) {
+        Transformation spin = rotationNode(time * 360.0f);
+        Transformation orbit = translationNode(EARTH_ORBIT);
+        Transformation sunSpin = rotationNode(time * 45.0f);
 
-    auto moonDrawable = std::make_shared<DrawableObject>(moonModel, shader);
-    moonDrawable->setTransformation(*uniformScaleNode(MOON_RADIUS));
-    moonDrawable->setDynamicTransformation([](float time) {
-        auto moonPlace = std::make_shared<TransformGroup>();
-        moonPlace->add(rotationNode(time * 180.0f));
-        moonPlace->add(translationNode(MOON_ORBIT));
-        moonPlace->add(rotationNode(time * 360.0f / 27.0f));
-        moonPlace->add(translationNode(EARTH_ORBIT));
-        moonPlace->add(rotationNode(time * 45.0f));
-        return Transformation(moonPlace->getMatrix());
-    });
+        TransformGroup earthPlace;
+        earthPlace.add(spin);
+        earthPlace.add(orbit);
+        earthPlace.add(sunSpin);
+        return Transformation(earthPlace.getMatrix());
+    };
 
-    scene->addDrawable(sunDrawable);
-    scene->addDrawable(earthDrawable);
-    scene->addDrawable(moonDrawable);
+    scene.drawables.emplace_back(Model(moonVertices),
+                                 ShaderProgram("./shaders/vertex_shader.glsl", "./shaders/fragment_shader.glsl"));
+    DrawableObject& moonDrawable = scene.drawables.back();
+    moonDrawable.transformation = uniformScaleNode(MOON_RADIUS);
+    moonDrawable.dynamic = [](float time) {
+        Transformation spin = rotationNode(time * 180.0f);
+        Transformation moonOrbit = translationNode(MOON_ORBIT);
+        Transformation moonSpin = rotationNode(time * 360.0f / 27.0f);
+        Transformation earthOrbit = translationNode(EARTH_ORBIT);
+        Transformation sunSpin = rotationNode(time * 45.0f);
+
+        TransformGroup moonPlace;
+        moonPlace.add(spin);
+        moonPlace.add(moonOrbit);
+        moonPlace.add(moonSpin);
+        moonPlace.add(earthOrbit);
+        moonPlace.add(sunSpin);
+        return Transformation(moonPlace.getMatrix());
+    };
 
     return scene;
 }

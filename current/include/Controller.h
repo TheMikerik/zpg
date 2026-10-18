@@ -3,21 +3,22 @@
 #include "Scene.h"
 #include <GLFW/glfw3.h>
 #include <vector>
-#include <memory>
 
 class Controller {
 public:
-    Controller(GLFWwindow* window, const std::vector<std::shared_ptr<Scene>>& scenes);
+    Controller(GLFWwindow* window, std::vector<Scene>& scenes);
 
     void handleInput();
-    void switchScene(int index);
-
     int getCurrentSceneIndex() const;
 
 private:
-    GLFWwindow* window;
-    const std::vector<std::shared_ptr<Scene>>& scenes;
-    int currentSceneIndex = 0;
+    bool isDown(int key) const;
+    bool pressedOnce(int key);
+    void switchScene(int index);
 
+    GLFWwindow* window;
+    std::vector<Scene>& scenes;
+    int currentSceneIndex = 0;
     int selectedDrawableIndex = 0;
+    bool wasDown[GLFW_KEY_LAST + 1] = {};
 };

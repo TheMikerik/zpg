@@ -23,6 +23,12 @@ ShaderProgram::ShaderProgram(const std::string& vertexPath, const std::string& f
     glDeleteShader(fragmentShader);
 }
 
+ShaderProgram::ShaderProgram(ShaderProgram&& other) noexcept
+    : programID(other.programID)
+{
+    other.programID = 0;
+}
+
 ShaderProgram::~ShaderProgram()
 {
     glDeleteProgram(programID);

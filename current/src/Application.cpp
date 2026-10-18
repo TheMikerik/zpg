@@ -85,8 +85,8 @@ void Application::run() {
 
         int currentSceneIndex = controller.getCurrentSceneIndex();
         if (currentSceneIndex >= 0 && currentSceneIndex < scenes.size()) {
-            scenes[currentSceneIndex]->update(static_cast<float>(glfwGetTime()));
-            scenes[currentSceneIndex]->render();
+            scenes[currentSceneIndex].update(static_cast<float>(glfwGetTime()));
+            scenes[currentSceneIndex].render();
         }
 
         glfwSwapBuffers(window);

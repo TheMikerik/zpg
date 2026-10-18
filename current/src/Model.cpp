@@ -24,18 +24,22 @@ Model::Model(const std::vector<float>& vertices)
     vertexCount = static_cast<GLsizei>(vertices.size() / 6);
 }
 
-Model::~Model()
+Model::Model(Model&& other) noexcept
+    : VAO(other.VAO), VBO(other.VBO), vertexCount(other.vertexCount)
 {
+    other.VAO = 0;
+    other.VBO = 0;
+}
+
+Model::~Model() {
     glDeleteVertexArrays(1, &VAO);
     glDeleteBuffers(1, &VBO);
 }
 
-void Model::bind() const
-{
+void Model::bind() const {
     glBindVertexArray(VAO);
 }
 
-void Model::unbind() const
-{
+void Model::unbind() const {
     glBindVertexArray(0);
 }

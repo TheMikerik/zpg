@@ -2,18 +2,10 @@
 
 #include "DrawableObject.h"
 #include <vector>
-#include <memory>
 
-class Scene {
-public:
-    Scene();
-    ~Scene();
+struct Scene {
+    std::vector<DrawableObject> drawables;
 
-    void addDrawable(std::shared_ptr<DrawableObject> drawable);
-    const std::vector<std::shared_ptr<DrawableObject>>& getDrawables();
     void update(float time);
     void render() const;
-
-private:
-    std::vector<std::shared_ptr<DrawableObject>> drawables;
 };

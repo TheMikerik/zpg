@@ -19,12 +19,7 @@ public:
     void applyCamera() const;
 
     void setUniform(const std::string& name, float value) const;
-    void setUniform(const std::string& name, int value) const;
-    void setUniform(const std::string& name, const glm::vec2& vec) const;
     void setUniform(const std::string& name, const glm::vec3& vec) const;
-    void setUniform(const std::string& name, const glm::vec4& vec) const;
-    void setUniform(const std::string& name, const glm::mat2& mat) const;
-    void setUniform(const std::string& name, const glm::mat3& mat) const;
     void setUniform(const std::string& name, const glm::mat4& mat) const;
 
 private:

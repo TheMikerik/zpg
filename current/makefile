@@ -36,6 +36,7 @@ SRCS = \
     src/scenes/ScenePlanets.cpp \
     src/scenes/SceneSpheres.cpp \
     src/graphics/DrawableObject.cpp \
+    src/graphics/Light.cpp \
     src/graphics/Camera.cpp \
     src/graphics/ShaderProgram.cpp \
     src/graphics/Model.cpp \

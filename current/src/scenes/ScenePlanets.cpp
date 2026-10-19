@@ -1,4 +1,5 @@
 #include "ScenePlanets.h"
+#include "PositionColorModel.h"
 #include "../../models/sun.h"
 #include "../../models/earth.h"
 #include "../../models/moon.h"
@@ -15,22 +16,19 @@ const float EARTH_ORBIT = 0.6f;
 const float MOON_RADIUS = 0.025f;
 const float MOON_ORBIT = 0.2f;
 
-Transformation rotationNode(float degrees)
-{
+Transformation rotationNode(float degrees) {
     Transformation t;
     t.rotate(degrees, Y_AXIS);
     return t;
 }
 
-Transformation translationNode(float x)
-{
+Transformation translationNode(float x) {
     Transformation t;
     t.translate(glm::vec3(x, 0.0f, 0.0f));
     return t;
 }
 
-Transformation uniformScaleNode(float s)
-{
+Transformation uniformScaleNode(float s) {
     Transformation t;
     t.scale(glm::vec3(s));
     return t;
@@ -38,8 +36,7 @@ Transformation uniformScaleNode(float s)
 
 // Funkce vygenerovana AI
 template <size_t N>
-std::vector<float> positionAndColor(const float (&data)[N])
-{
+std::vector<float> positionAndColor(const float (&data)[N]) {
     const size_t floatsPerVertex = 9;
     std::vector<float> result;
     result.reserve(N / floatsPerVertex * 6);
@@ -51,15 +48,14 @@ std::vector<float> positionAndColor(const float (&data)[N])
 
 }
 
-Scene ScenePlanets::create()
-{
+Scene ScenePlanets::create() {
     std::vector<float> sunVertices = positionAndColor(sun);
     std::vector<float> earthVertices = positionAndColor(earth);
     std::vector<float> moonVertices = positionAndColor(moon);
 
     Scene scene;
 
-    scene.drawables.emplace_back(Model(sunVertices),
+    scene.drawables.emplace_back(PositionColorModel(sunVertices),
                                  ShaderProgram("./shaders/vertex_shader.glsl", "./shaders/fragment_shader.glsl"));
     DrawableObject& sunDrawable = scene.drawables.back();
     sunDrawable.transformation = uniformScaleNode(SUN_RADIUS);
@@ -67,7 +63,7 @@ Scene ScenePlanets::create()
         return rotationNode(time * 20.0f);
     };
 
-    scene.drawables.emplace_back(Model(earthVertices),
+    scene.drawables.emplace_back(PositionColorModel(earthVertices),
                                  ShaderProgram("./shaders/vertex_shader.glsl", "./shaders/fragment_shader.glsl"));
     DrawableObject& earthDrawable = scene.drawables.back();
     earthDrawable.transformation = uniformScaleNode(EARTH_RADIUS);
@@ -83,7 +79,7 @@ Scene ScenePlanets::create()
         return Transformation(earthPlace.getMatrix());
     };
 
-    scene.drawables.emplace_back(Model(moonVertices),
+    scene.drawables.emplace_back(PositionColorModel(moonVertices),
                                  ShaderProgram("./shaders/vertex_shader.glsl", "./shaders/fragment_shader.glsl"));
     DrawableObject& moonDrawable = scene.drawables.back();
     moonDrawable.transformation = uniformScaleNode(MOON_RADIUS);

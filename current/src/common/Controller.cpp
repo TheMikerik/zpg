@@ -23,8 +23,7 @@ void scaleBy(DrawableObject& d, float factor) {
 }
 
 Controller::Controller(GLFWwindow* window, std::vector<Scene>& scenes, Camera& camera)
-    : window(window), scenes(scenes), camera(camera)
-{
+    : window(window), scenes(scenes), camera(camera) {
     glfwGetCursorPos(window, &lastMouseX, &lastMouseY);
 
     if (!scenes.empty()) {

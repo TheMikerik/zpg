@@ -2,22 +2,18 @@
 #include <utility>
 
 DrawableObject::DrawableObject(Model model, ShaderProgram shader)
-    : model(std::move(model)), shader(std::move(shader))
-{
+    : model(std::move(model)), shader(std::move(shader)) {
 }
 
-void DrawableObject::addNode(const TransformNode& node)
-{
+void DrawableObject::addNode(const TransformNode& node) {
     nodeMatrix = node.getMatrix() * nodeMatrix;
 }
 
-void DrawableObject::update(float time)
-{
+void DrawableObject::update(float time) {
     dynamicPart = dynamic ? dynamic(time) : Transformation();
 }
 
-void DrawableObject::render() const
-{
+void DrawableObject::render() const {
     shader.use();
     if (updateUniforms) {
         updateUniforms(shader);

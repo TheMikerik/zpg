@@ -6,8 +6,7 @@
 #include <iostream>
 #include <cstdlib>
 
-std::vector<float> OBJLoader::loadOBJ(const std::string& filePath)
-{
+std::vector<float> OBJLoader::loadOBJ(const std::string& filePath) {
     std::ifstream file(filePath);
     if (!file.is_open()) {
         std::cerr << "Failed to open OBJ file: " << filePath << std::endl;
@@ -77,8 +76,7 @@ std::vector<float> OBJLoader::loadOBJ(const std::string& filePath)
     return createVertexArray(vertices);
 }
 
-std::vector<float> OBJLoader::createVertexArray(const std::vector<Vertex>& vertices)
-{
+std::vector<float> OBJLoader::createVertexArray(const std::vector<Vertex>& vertices) {
     std::vector<float> result;
     result.reserve(vertices.size() * 6);
 

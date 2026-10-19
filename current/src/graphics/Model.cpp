@@ -2,12 +2,8 @@
 #include <cstdlib>
 #include <iostream>
 
-Model::Model(const std::vector<float>& vertices, bool withNormals)
-    : VAO(0), VBO(0), vertexCount(0)
-{
-    const GLsizei floatsPerVertex = withNormals ? 9 : 6;
-    const GLsizei colorOffset = withNormals ? 6 : 3;
-
+Model::Model(const std::vector<float>& vertices, GLsizei floatsPerVertex, GLsizei colorOffset)
+    : VAO(0), VBO(0), vertexCount(0) {
     glGenVertexArrays(1, &VAO);
     glBindVertexArray(VAO);
 
@@ -28,8 +24,7 @@ Model::Model(const std::vector<float>& vertices, bool withNormals)
 }
 
 Model::Model(Model&& other) noexcept
-    : VAO(other.VAO), VBO(other.VBO), vertexCount(other.vertexCount)
-{
+    : VAO(other.VAO), VBO(other.VBO), vertexCount(other.vertexCount) {
     other.VAO = 0;
     other.VBO = 0;
 }

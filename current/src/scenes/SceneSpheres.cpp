@@ -1,5 +1,5 @@
 #include "SceneSpheres.h"
-#include "../models/sphere.h"
+#include "../../models/sphere.h"
 #include "Transformation.h"
 
 namespace {

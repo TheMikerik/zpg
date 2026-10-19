@@ -1,7 +1,7 @@
 #include "ScenePlanets.h"
-#include "../models/sun.h"
-#include "../models/earth.h"
-#include "../models/moon.h"
+#include "../../models/sun.h"
+#include "../../models/earth.h"
+#include "../../models/moon.h"
 #include "Transformation.h"
 #include "TransformGroup.h"
 

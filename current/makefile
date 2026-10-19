@@ -7,7 +7,9 @@ CXXFLAGS = -std=c++11 -Wall -g -DGL_SILENCE_DEPRECATION -MMD -MP
 
 # Update include and library paths based on Homebrew prefix and project structure
 INCLUDES = \
-    -Iinclude \
+    -Iinclude/common \
+    -Iinclude/graphics \
+    -Iinclude/scenes \
     -I/opt/homebrew/opt/glfw/include \
     -I/opt/homebrew/opt/glm/include \
     -I/opt/homebrew/opt/glew/include
@@ -26,20 +28,20 @@ TARGET_PATH = build/$(TARGET)
 
 # Source files
 SRCS = \
-    src/main.cpp \
-    src/Application.cpp \
-    src/Controller.cpp \
-    src/Scene.cpp \
-    src/SceneForest.cpp \
-    src/ScenePlanets.cpp \
-    src/SceneSpheres.cpp \
-    src/DrawableObject.cpp \
-    src/Camera.cpp \
-    src/ShaderProgram.cpp \
-    src/Model.cpp \
-    src/Transformation.cpp \
-    src/TransformGroup.cpp \
-    src/OBJLoader.cpp
+    src/common/main.cpp \
+    src/common/Application.cpp \
+    src/common/Controller.cpp \
+    src/scenes/Scene.cpp \
+    src/scenes/SceneForest.cpp \
+    src/scenes/ScenePlanets.cpp \
+    src/scenes/SceneSpheres.cpp \
+    src/graphics/DrawableObject.cpp \
+    src/graphics/Camera.cpp \
+    src/graphics/ShaderProgram.cpp \
+    src/graphics/Model.cpp \
+    src/graphics/Transformation.cpp \
+    src/graphics/TransformGroup.cpp \
+    src/graphics/OBJLoader.cpp
 
 # Object files
 OBJS = $(SRCS:src/%.cpp=build/%.o)

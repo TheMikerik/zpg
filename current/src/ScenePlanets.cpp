@@ -1,4 +1,4 @@
-#include "Scene5.h"
+#include "ScenePlanets.h"
 #include "../models/sun.h"
 #include "../models/earth.h"
 #include "../models/moon.h"
@@ -51,7 +51,7 @@ std::vector<float> positionAndColor(const float (&data)[N])
 
 }
 
-Scene Scene5::create()
+Scene ScenePlanets::create()
 {
     std::vector<float> sunVertices = positionAndColor(sun);
     std::vector<float> earthVertices = positionAndColor(earth);

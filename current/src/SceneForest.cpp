@@ -1,4 +1,4 @@
-#include "Scene3.h"
+#include "SceneForest.h"
 #include "../models/bushes.h"
 #include "../models/tree.h"
 #include "../models/sphere.h"
@@ -86,7 +86,7 @@ void addClock(Scene& scene, const std::vector<float>& clockVertices, const glm::
 
 }
 
-Scene Scene3::create()
+Scene SceneForest::create()
 {
     std::vector<float> groundVertices = groundPositionAndColor();
     std::vector<float> bushesVertices(std::begin(bushes), std::end(bushes));
@@ -107,8 +107,12 @@ Scene Scene3::create()
 
     for (int i = 0; i < 12; ++i) {
         scene.drawables.emplace_back(Model(bushesVertices),
-                                     ShaderProgram("./shaders/vertex_shader.glsl", "./shaders/fragment_shader_green.glsl"));
-        addRandomInstance(scene.drawables.back(), gen, 0.12f, 0.2f);
+                                     ShaderProgram("./shaders/vertex_shader.glsl", "./shaders/fragment_shader_color.glsl"));
+        DrawableObject& bushDrawable = scene.drawables.back();
+        addRandomInstance(bushDrawable, gen, 0.12f, 0.2f);
+        bushDrawable.updateUniforms = [](const ShaderProgram& shader) {
+            shader.setUniform("objectColor", glm::vec3(0.0f, 1.0f, 0.0f));
+        };
     }
 
     for (int i = 0; i < TREE_COUNT; ++i) {
@@ -124,10 +128,13 @@ Scene Scene3::create()
     }
 
     scene.drawables.emplace_back(Model(sphereVertices),
-                                 ShaderProgram("./shaders/vertex_shader.glsl", "./shaders/fragment_shader_red.glsl"));
+                                 ShaderProgram("./shaders/vertex_shader.glsl", "./shaders/fragment_shader_color.glsl"));
     DrawableObject& sunDrawable = scene.drawables.back();
     sunDrawable.transformation.translate(glm::vec3(0.7f, 0.7f, 0.0f));
     sunDrawable.transformation.scale(glm::vec3(0.15f));
+    sunDrawable.updateUniforms = [](const ShaderProgram& shader) {
+        shader.setUniform("objectColor", glm::vec3(1.0f, 0.0f, 0.0f));
+    };
 
     addClock(scene, clockVertices, glm::vec3(0.0f, 1.0f, -1.5f));
     addClock(scene, clockVertices, glm::vec3(2.5f, 1.0f, 1.5f));

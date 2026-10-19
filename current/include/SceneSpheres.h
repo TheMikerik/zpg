@@ -2,7 +2,7 @@
 
 #include "Scene.h"
 
-class Scene5 {
+class SceneSpheres {
 public:
     static Scene create();
 };

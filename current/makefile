@@ -30,11 +30,9 @@ SRCS = \
     src/Application.cpp \
     src/Controller.cpp \
     src/Scene.cpp \
-    src/Scene1.cpp \
-    src/Scene2.cpp \
-    src/Scene3.cpp \
-    src/Scene4.cpp \
-    src/Scene5.cpp \
+    src/SceneForest.cpp \
+    src/ScenePlanets.cpp \
+    src/SceneSpheres.cpp \
     src/DrawableObject.cpp \
     src/Camera.cpp \
     src/ShaderProgram.cpp \

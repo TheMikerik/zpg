@@ -4,7 +4,7 @@
 
 namespace {
 
-const int SCENE_COUNT = 5;
+const int SCENE_COUNT = 3;
 const float MOUSE_SENSITIVITY = 0.005f;
 const float WALK_STEP = 0.05f;
 
@@ -62,6 +62,10 @@ void Controller::handleMouse() {
 
 void Controller::handleInput() {
     handleMouse();
+
+    if (pressedOnce(GLFW_KEY_Q)) {
+        glfwSetWindowShouldClose(window, GLFW_TRUE);
+    }
 
     if (isDown(GLFW_KEY_W)) { camera.moveForward(WALK_STEP); }
     if (isDown(GLFW_KEY_S)) { camera.moveForward(-WALK_STEP); }

@@ -1,9 +1,7 @@
 #include "Application.h"
-#include "Scene1.h"
-#include "Scene2.h"
-#include "Scene3.h"
-#include "Scene4.h"
-#include "Scene5.h"
+#include "SceneForest.h"
+#include "ScenePlanets.h"
+#include "SceneSpheres.h"
 #include "Controller.h"
 #include <iostream>
 #include <cstdlib>
@@ -66,11 +64,9 @@ void Application::initialization() {
 }
 
 void Application::createScenes() {
-    scenes.push_back(Scene1::create());
-    scenes.push_back(Scene2::create());
-    scenes.push_back(Scene3::create());
-    scenes.push_back(Scene4::create());
-    scenes.push_back(Scene5::create());
+    scenes.push_back(SceneForest::create());
+    scenes.push_back(ScenePlanets::create());
+    scenes.push_back(SceneSpheres::create());
 }
 
 void Application::run() {

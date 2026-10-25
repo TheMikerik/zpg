@@ -62,17 +62,24 @@ Kompilátor: `g++`, přepínače `-std=c++11 -Wall -g`. Knihovny z Homebrew: **G
    - `TransformGroup` skládá více transformací do jedné matice (`add` + `getMatrix`).
    - Vrcholový shader dostává matici jako uniform `modelMatrix` a počítá `gl_Position = projectionMatrix * viewMatrix * modelMatrix * vec4(aPos, 1.0)`.
 8. **Vrcholová data** jsou v `models/*.h` jako pole `float`. Shader používá pozici `aPos` (location 0) a další atributy podle modelu.
-9. **Světla** jsou ve třídě `Light` (`graphics/Light.h`). Zatím je to bodové světlo (pozice + barva), které posílá uniformy `lightPos` a `lightColor` přes `sendTo(shader)`.
+9. **Světla** jsou ve třídě `Light` (`graphics/Light.h`). Zatím je to bodové světlo (pozice + barva), které posílá uniformy `lightPos` a `lightColor` přes `sendTo(shader)`. Ve scéně `ScenePlanets` je to Slunce v počátku.
 
 ## Shadery
 
 - `vertex_shader.glsl` — převádí pozici pomocí matic a předává barvu vrcholu.
-- `vertex_shader_light.glsl` — převádí pozici a předává světové souřadnice a normálu (pro osvětlení).
+- `vertex_shader_light.glsl` — převádí pozici a předává světové souřadnice, normálu a barvu vrcholu (pro osvětlení; normála se bere z normalizované pozice, takže platí pro koule se středem v počátku).
+- `vertex_shader_normal.glsl` — jako `vertex_shader_light.glsl`, ale normálu bere z dat (location 1, model `PositionNormalModel`, např. UFO z OBJ).
 - `vertex_shader_tree.glsl`, `vertex_shader_clock.glsl` — specializované vrcholové shadery pro strom a hodiny.
 - `fragment_shader.glsl` — vypisuje barvu vrcholu.
 - `fragment_shader_color.glsl` — vypisuje uniform `objectColor`.
 - `fragment_shader_light.glsl` — ambientní + difuzní osvětlení od `Light`, barva z `objectColor`.
 - `fragment_shader_tree.glsl` — stínování podle normály, barvu listí z uniformu `leafColor`.
+- Osvětlovací modely (scéna `SceneSpheres`, 4 koule se svým modelem, všechny používají `vertex_shader_light.glsl`, světlo je ve středu):
+  - `fragment_shader_ambient.glsl` — konstantní osvětlení, jen ambientní složka.
+  - `fragment_shader_light.glsl` — Lambert: ambientní + difuzní složka.
+  - `fragment_shader_phong.glsl` — Phong: ambientní + difuzní + zrcadlová (odraz světla kolem normály).
+  - `fragment_shader_blinn.glsl` — Blinn-Phong: ambientní + difuzní + zrcadlová s half-vektorem.
+- Scéna `ScenePlanets`: Slunce používá `vertex_shader.glsl` + `fragment_shader.glsl` (bez výpočtu světla, konstantní barva z vrcholů). Planety a Měsíc používají `vertex_shader_light.glsl` + `fragment_shader_phong_color.glsl` (Phong, barva z vrcholů). Slunce je zdroj světla ve středu scény (`Light` v pozici `(0, 0, 0)`). Scéna také obsahuje UFO načtené z `models/ufo.obj` přes `OBJLoader::loadOBJ` (shader `vertex_shader_normal.glsl` + `fragment_shader_phong.glsl`, jednolitá barva z `ufo.mtl`).
 
 Cesty k shaderům se berou relativně ke složce `current/`, proto se program musí spouštět přes `make` (nebo z `current/`).
 

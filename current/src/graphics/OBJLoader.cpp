@@ -34,8 +34,11 @@ std::vector<float> OBJLoader::loadOBJ(const std::string& filePath) {
             normals.push_back(glm::normalize(glm::vec3(x, y, z)));
         }
         else if (type == "f") {
-            std::string vertex1, vertex2, vertex3;
-            iss >> vertex1 >> vertex2 >> vertex3;
+            std::vector<std::string> faceVertices;
+            std::string vertexStr;
+            while (iss >> vertexStr) {
+                faceVertices.push_back(vertexStr);
+            }
 
             auto parseVertex = [&](const std::string& vertexStr) -> Vertex {
                 Vertex v;
@@ -62,13 +65,11 @@ std::vector<float> OBJLoader::loadOBJ(const std::string& filePath) {
                 return v;
             };
 
-            Vertex v1 = parseVertex(vertex1);
-            Vertex v2 = parseVertex(vertex2);
-            Vertex v3 = parseVertex(vertex3);
-
-            vertices.push_back(v1);
-            vertices.push_back(v2);
-            vertices.push_back(v3);
+            for (size_t i = 1; i + 1 < faceVertices.size(); ++i) {
+                vertices.push_back(parseVertex(faceVertices[0]));
+                vertices.push_back(parseVertex(faceVertices[i]));
+                vertices.push_back(parseVertex(faceVertices[i + 1]));
+            }
         }
     }
 

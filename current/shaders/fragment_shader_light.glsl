@@ -8,7 +8,7 @@ uniform vec3 objectColor;
 uniform vec3 lightPos;
 uniform vec3 lightColor;
 
-const float AMBIENT_STRENGTH = 0.1;
+const float AMBIENT_STRENGTH = 0.3;
 
 void main()
 {

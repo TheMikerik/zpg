@@ -26,7 +26,7 @@ current/
 ├── src/
 │   ├── common/      # Application, Controller, main.cpp
 │   ├── graphics/    # Camera, DrawableObject, Light, Model, PositionColorModel, PositionNormalColorModel, ShaderProgram, Transformation, TransformGroup, OBJLoader
-│   └── scenes/      # Scene, SceneForest, ScenePlanets, SceneSpheres
+│   └── scenes/      # Scene, SceneForest, ScenePlanets, SceneSpheres, SceneNormals, SceneSpecular, SceneNightForest
 ├── include/         # hlavičky .h se stejnou podsložkou jako ve src/
 ├── shaders/         # GLSL shadery (.glsl)
 ├── models/          # modely jako pole float v .h (+ login.obj/.mtl)
@@ -46,8 +46,8 @@ Kompilátor: `g++`, přepínače `-std=c++11 -Wall -g`. Knihovny z Homebrew: **G
 ## Architektura (jak to funguje)
 
 1. **`main.cpp`** spustí `Application`.
-2. **`Application`** vytvoří okno GLFW (800×600, OpenGL 3.3 Core), inicializuje GLEW a vytvoří 3 scény: `SceneForest`, `ScenePlanets` a `SceneSpheres`. Pak běží hlavní smyčka: vymaže obrazovku, zavolá `update(time)` a `render()` aktuální scény, prohodí buffery a zpracuje vstup.
-3. **`Controller`** čte vstup od uživatele. Klávesy `1`–`3` přepínají scénu (`getCurrentSceneIndex()`), klávesa `Q` ukončí aplikaci.
+2. **`Application`** vytvoří okno GLFW (800×600, OpenGL 3.3 Core), inicializuje GLEW a vytvoří 6 scén: `SceneForest`, `ScenePlanets`, `SceneSpheres`, `SceneNormals`, `SceneSpecular` a `SceneNightForest`. Pak běží hlavní smyčka: nastaví barvu pozadí (`Scene::clearColor`), vymaže obrazovku, zavolá `update(time)` a `render()` aktuální scény, prohodí buffery a zpracuje vstup.
+3. **`Controller`** čte vstup od uživatele. Klávesy `1`–`6` přepínají scénu (`getCurrentSceneIndex()`), klávesa `Q` ukončí aplikaci, klávesa `R` přepíná chybný režim změny velikosti okna (`isResizeBugMode()`: zamrzne viewport a poměr stran).
 4. **`Scene`** je jen seznam `drawables` (`std::vector<DrawableObject>`). Umí `update` a `render` pro všechny objekty.
 5. **`DrawableObject`** spojuje čtyři věci:
    - `Model` — vrcholová data nahraná do VBO/VAO,
@@ -68,7 +68,8 @@ Kompilátor: `g++`, přepínače `-std=c++11 -Wall -g`. Knihovny z Homebrew: **G
 
 - `vertex_shader.glsl` — převádí pozici pomocí matic a předává barvu vrcholu.
 - `vertex_shader_light.glsl` — převádí pozici a předává světové souřadnice, normálu a barvu vrcholu (pro osvětlení; normála se bere z normalizované pozice, takže platí pro koule se středem v počátku).
-- `vertex_shader_normal.glsl` — jako `vertex_shader_light.glsl`, ale normálu bere z dat (location 1, model `PositionNormalModel`, např. UFO z OBJ).
+- `vertex_shader_normal.glsl` — jako `vertex_shader_light.glsl`, ale normálu bere z dat (location 1, model `PositionNormalModel`, např. UFO z OBJ). Normálu převádí chybně přes `mat3(modelMatrix)` (ukázka chyby ve scéně `SceneNormals`).
+- `vertex_shader_normal_correct.glsl` — jako `vertex_shader_normal.glsl`, ale normálu převádí správně přes inverzní transpozici `mat3(transpose(inverse(modelMatrix)))`.
 - `vertex_shader_tree.glsl`, `vertex_shader_clock.glsl` — specializované vrcholové shadery pro strom a hodiny.
 - `fragment_shader.glsl` — vypisuje barvu vrcholu.
 - `fragment_shader_color.glsl` — vypisuje uniform `objectColor`.
@@ -88,6 +89,10 @@ Cesty k shaderům se berou relativně ke složce `current/`, proto se program mu
 - **Jednoduchost nade vše.** Žádné složité šablony ani zbytečné abstrakce. Dědičnost používáme jen tam, kde je zadání výslovně chce (například `Model` → `PositionColorModel`). Musí jít vysvětlit u zkoušky.
 - **Styl:** 4 mezery odsazení, složené závorky u funkcí, tříd a řídicích příkazů na stejném řádku jako hlavička (`void f() {`). Soubor `.clang-format` v `current/` to nastavuje. Pojmenované konstanty místo „magických“ čísel (např. `SUN_RADIUS`).
 - **Komentáře česky**, stručně a jen tam, kde pomáhají pochopit logiku (ne u každého řádku).
+- Scéna `SceneNormals`: dvě koule (`models/sphere.h`, `PositionNormalModel`) s nerovnoměrným škálováním `(0.3, 0.1, 0.15)`, fragment shader `fragment_shader_phong.glsl`, světlo `(0, 1, 1)`. Vlevo chybný převod normál (`vertex_shader_normal.glsl`), vpravo správný (`vertex_shader_normal_correct.glsl`). Ukazuje, že `mat3(modelMatrix) * normala` je správně jen pro shodné (rovnoměrné) škálování.
+- Scéna `SceneSpecular`: dvě koule s `PositionNormalModel`, mocnina `shininess = 1`, světlo `(0, 0, -2)` za koulemi (přivrácená strana je ve stínu). Vlevo `fragment_shader_specular_wrong.glsl` (zrcadlová složka se počítá i na odvrácené straně, chyba), vpravo `fragment_shader_specular_clipped.glsl` (zrcadlová složka se ořízne tam, kde `diff == 0`, tedy `if (diff > 0.0)`).
+- Změna velikosti okna: `Application::run()` každý snímek volá `glViewport` a `camera.setAspectRatio` (správně). Klávesa `R` (`Controller::isResizeBugMode()`) tuto aktualizaci vypne, takže se viewport a poměr stran zamrznou a obraz se při změně velikosti zkresluje.
+- Scéna `SceneNightForest` (noční les, klávesa `6`): tmavé pozadí (`clearColor`), zem a mřížka stromů (`PositionNormalModel`, shader `vertex_shader_normal_correct.glsl` + `fragment_shader_night.glsl`). Jediné světlo je světluška (`Light` na pevné pozici), shader počítá ambientní složku a difuzní složku s útlumem `I = 1 / (1 + 0.7·d + 1.8·d²)`. Světluška sama je nesvítící koule (`fragment_shader_color.glsl`). Zem je škálovaná rovnoměrně.
 - Nové scény dělej stejným vzorem jako `SceneForest`, `ScenePlanets` a `SceneSpheres`: třída s `static Scene create()`, registrace v `Application::createScenes()`, přidání do `makefile`, přepínání klávesou v `Controller` (`SCENE_COUNT`).
 - Nepřidávej závislosti, které nejsou v projektu ani v zadání.
 

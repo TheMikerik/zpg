@@ -35,6 +35,9 @@ SRCS = \
     src/scenes/SceneForest.cpp \
     src/scenes/ScenePlanets.cpp \
     src/scenes/SceneSpheres.cpp \
+    src/scenes/SceneNormals.cpp \
+    src/scenes/SceneSpecular.cpp \
+    src/scenes/SceneNightForest.cpp \
     src/graphics/DrawableObject.cpp \
     src/graphics/Light.cpp \
     src/graphics/Camera.cpp \

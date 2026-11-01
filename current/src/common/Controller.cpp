@@ -4,7 +4,7 @@
 
 namespace {
 
-const int SCENE_COUNT = 3;
+const int SCENE_COUNT = 6;
 const float MOUSE_SENSITIVITY = 0.005f;
 const float WALK_STEP = 0.05f;
 
@@ -33,6 +33,10 @@ Controller::Controller(GLFWwindow* window, std::vector<Scene>& scenes, Camera& c
 
 int Controller::getCurrentSceneIndex() const {
     return currentSceneIndex;
+}
+
+bool Controller::isResizeBugMode() const {
+    return resizeBugMode;
 }
 
 bool Controller::isDown(int key) const {
@@ -64,6 +68,12 @@ void Controller::handleInput() {
 
     if (pressedOnce(GLFW_KEY_Q)) {
         glfwSetWindowShouldClose(window, GLFW_TRUE);
+    }
+
+    if (pressedOnce(GLFW_KEY_R)) {
+        resizeBugMode = !resizeBugMode;
+        std::cout << (resizeBugMode ? "Resize BUG mode ON (viewport a perspektiva zamrzle)"
+                                    : "Resize BUG mode OFF (viewport a perspektiva se aktualizuji)") << std::endl;
     }
 
     if (isDown(GLFW_KEY_W)) { camera.moveForward(WALK_STEP); }

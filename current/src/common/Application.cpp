@@ -2,6 +2,9 @@
 #include "SceneForest.h"
 #include "ScenePlanets.h"
 #include "SceneSpheres.h"
+#include "SceneNormals.h"
+#include "SceneSpecular.h"
+#include "SceneNightForest.h"
 #include "Controller.h"
 #include <iostream>
 #include <cstdlib>
@@ -67,12 +70,14 @@ void Application::createScenes() {
     scenes.push_back(SceneForest::create());
     scenes.push_back(ScenePlanets::create());
     scenes.push_back(SceneSpheres::create());
+    scenes.push_back(SceneNormals::create());
+    scenes.push_back(SceneSpecular::create());
+    scenes.push_back(SceneNightForest::create());
 }
 
 void Application::run() {
     glEnable(GL_DEPTH_TEST);
 
-    glClearColor(0.59f, 0.76f, 0.92f, 1.0f);
     createScenes();
     for (Scene& scene : scenes) {
         scene.setCamera(&camera);
@@ -82,14 +87,18 @@ void Application::run() {
     while (!glfwWindowShouldClose(window)) {
         int width, height;
         glfwGetFramebufferSize(window, &width, &height);
-        if (height > 0) {
+        if (height > 0 && !controller.isResizeBugMode()) {
             glViewport(0, 0, width, height);
             camera.setAspectRatio(static_cast<float>(width) / height);
         }
 
+        int currentSceneIndex = controller.getCurrentSceneIndex();
+        if (currentSceneIndex >= 0 && currentSceneIndex < scenes.size()) {
+            const glm::vec3& clear = scenes[currentSceneIndex].clearColor;
+            glClearColor(clear.r, clear.g, clear.b, 1.0f);
+        }
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-        int currentSceneIndex = controller.getCurrentSceneIndex();
         if (currentSceneIndex >= 0 && currentSceneIndex < scenes.size()) {
             scenes[currentSceneIndex].update(static_cast<float>(glfwGetTime()));
             scenes[currentSceneIndex].render();

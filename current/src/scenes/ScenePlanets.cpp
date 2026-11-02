@@ -20,9 +20,11 @@ const float UFO_ORBIT_RADIUS = 0.4f;
 const float UFO_ORBIT_SPEED = 120.0f;
 const glm::vec3 UFO_COLOR(0.6f, 0.6f, 0.6f);
 
-const Light SUN_LIGHT(glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(1.0f, 1.0f, 1.0f));
+const Light SUN_LIGHT(glm::vec3(0.0f, 0.0f, 0.0f));
 
 void setPlanetUniforms(const ShaderProgram& shader) {
+    shader.setUniform("useVertexColor", 1);
+    shader.setUniform("shadingModel", PHONG);
     SUN_LIGHT.sendTo(shader);
 }
 
@@ -50,7 +52,6 @@ Transformation uniformScaleNode(float s) {
     return t;
 }
 
-// Funkce vygenerovana AI
 template <size_t N>
 std::vector<float> positionAndColor(const float (&data)[N]) {
     const size_t floatsPerVertex = 9;
@@ -72,15 +73,18 @@ Scene ScenePlanets::create() {
     Scene scene;
 
     scene.drawables.emplace_back(PositionColorModel(sunVertices),
-                                 ShaderProgram("./shaders/vertex_shader.glsl", "./shaders/fragment_shader.glsl"));
+                                 ShaderProgram("./shaders/vertex_shader_light.glsl", "./shaders/fragment_shader_light.glsl"));
     DrawableObject& sunDrawable = scene.drawables.back();
     sunDrawable.transformation = uniformScaleNode(SUN_RADIUS);
+    sunDrawable.updateUniforms = [](const ShaderProgram& shader) {
+        shader.setUniform("useVertexColor", 1);
+    };
     sunDrawable.dynamic = [](float time) {
         return rotationNode(time * 20.0f);
     };
 
     scene.drawables.emplace_back(PositionColorModel(earthVertices),
-                                 ShaderProgram("./shaders/vertex_shader_light.glsl", "./shaders/fragment_shader_phong_color.glsl"));
+                                 ShaderProgram("./shaders/vertex_shader_light.glsl", "./shaders/fragment_shader_light.glsl"));
     DrawableObject& earthDrawable = scene.drawables.back();
     earthDrawable.transformation = uniformScaleNode(EARTH_RADIUS);
     earthDrawable.updateUniforms = setPlanetUniforms;
@@ -97,7 +101,7 @@ Scene ScenePlanets::create() {
     };
 
     scene.drawables.emplace_back(PositionColorModel(moonVertices),
-                                 ShaderProgram("./shaders/vertex_shader_light.glsl", "./shaders/fragment_shader_phong_color.glsl"));
+                                 ShaderProgram("./shaders/vertex_shader_light.glsl", "./shaders/fragment_shader_light.glsl"));
     DrawableObject& moonDrawable = scene.drawables.back();
     moonDrawable.transformation = uniformScaleNode(MOON_RADIUS);
     moonDrawable.updateUniforms = setPlanetUniforms;
@@ -118,7 +122,7 @@ Scene ScenePlanets::create() {
     };
 
     scene.drawables.emplace_back(PositionColorModel(OBJLoader::loadOBJ("./models/ufo.obj")),
-                                 ShaderProgram("./shaders/vertex_shader_normal.glsl", "./shaders/fragment_shader_phong.glsl"));
+                                 ShaderProgram("./shaders/vertex_shader_light.glsl", "./shaders/fragment_shader_light.glsl"));
     DrawableObject& ufoDrawable = scene.drawables.back();
     ufoDrawable.transformation.scale(glm::vec3(UFO_SCALE));
     ufoDrawable.transformation.translate(-UFO_SCALE * UFO_CENTER);
@@ -138,6 +142,8 @@ Scene ScenePlanets::create() {
     };
     ufoDrawable.updateUniforms = [](const ShaderProgram& shader) {
         shader.setUniform("objectColor", UFO_COLOR);
+        shader.setUniform("normalFromAttr", 1);
+        shader.setUniform("shadingModel", PHONG);
         SUN_LIGHT.sendTo(shader);
     };
 

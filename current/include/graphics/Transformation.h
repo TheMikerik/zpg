@@ -1,4 +1,3 @@
-// Transformation.h
 #pragma once
 
 #include "TransformNode.h"

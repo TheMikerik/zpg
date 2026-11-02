@@ -18,20 +18,20 @@ const int TREE_RANGE = 2;
 
 const glm::vec3 FIREFLY_POSITION(0.75f, 0.6f, 0.75f);
 const glm::vec3 FIREFLY_BODY_COLOR(1.0f, 1.0f, 0.4f);
-const glm::vec3 FIREFLY_LIGHT_COLOR(0.8f, 1.0f, 0.3f);
 const float FIREFLY_SCALE = 0.03f;
-const Light FIREFLY_LIGHT(FIREFLY_POSITION, FIREFLY_LIGHT_COLOR);
+const glm::vec3 FIREFLY_ATTENUATION(1.0f, 0.7f, 1.8f); // I = 1 / (1 + 0.7 d + 1.8 d^2)
+const Light FIREFLY_LIGHT(FIREFLY_POSITION, FIREFLY_ATTENUATION);
 
 void addObject(Scene& scene, const std::vector<float>& vertices, const glm::vec3& color,
                const glm::vec3& position, float scale) {
     scene.drawables.emplace_back(PositionNormalModel(vertices),
-                                 ShaderProgram("./shaders/vertex_shader_normal_correct.glsl",
-                                               "./shaders/fragment_shader_night.glsl"));
+                                 ShaderProgram("./shaders/vertex_shader_light.glsl", "./shaders/fragment_shader_light.glsl"));
     DrawableObject& object = scene.drawables.back();
     object.transformation.translate(position);
     object.transformation.scale(glm::vec3(scale));
     object.updateUniforms = [color](const ShaderProgram& shader) {
         shader.setUniform("objectColor", color);
+        shader.setUniform("normalFromAttr", 1);
         FIREFLY_LIGHT.sendTo(shader);
     };
 }
@@ -56,7 +56,7 @@ Scene SceneNightForest::create() {
     }
 
     scene.drawables.emplace_back(PositionColorModel(sphereVertices),
-                                 ShaderProgram("./shaders/vertex_shader.glsl", "./shaders/fragment_shader_color.glsl"));
+                                 ShaderProgram("./shaders/vertex_shader_light.glsl", "./shaders/fragment_shader_light.glsl"));
     DrawableObject& firefly = scene.drawables.back();
     firefly.transformation.translate(FIREFLY_POSITION);
     firefly.transformation.scale(glm::vec3(FIREFLY_SCALE));

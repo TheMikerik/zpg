@@ -24,7 +24,7 @@ private:
     Camera& camera;
     int currentSceneIndex = 0;
     int selectedDrawableIndex = 0;
-    bool resizeBugMode = false; // klavesa R: zamrzle viewport a pomer stran (chybny rezim)
+    bool resizeBugMode = false;
     bool wasDown[GLFW_KEY_LAST + 1] = {};
     double lastMouseX = 0.0;
     double lastMouseY = 0.0;

@@ -1,4 +1,3 @@
-// TransformGroup.cpp
 #include "TransformGroup.h"
 
 void TransformGroup::add(const TransformNode& child) {

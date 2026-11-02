@@ -102,6 +102,13 @@ void ShaderProgram::setUniform(const std::string& name, float value) const {
     }
 }
 
+void ShaderProgram::setUniform(const std::string& name, int value) const {
+    GLint location = getUniformLocation(name);
+    if (location != -1) {
+        glUniform1i(location, value);
+    }
+}
+
 void ShaderProgram::setUniform(const std::string& name, const glm::vec3& vec) const {
     GLint location = getUniformLocation(name);
     if (location != -1) {

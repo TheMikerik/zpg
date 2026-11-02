@@ -49,6 +49,7 @@ void setClockHands(const ShaderProgram& shader) {
     shader.setUniform("hourAngle", hours / 12.0f * glm::two_pi<float>());
     shader.setUniform("minuteAngle", minutes / 60.0f * glm::two_pi<float>());
     shader.setUniform("secondAngle", seconds / 60.0f * glm::two_pi<float>());
+    shader.setUniform("useVertexColor", 1);
 }
 
 void addRandomInstance(DrawableObject& drawable, std::mt19937& gen, float scaleMin, float scaleMax) {
@@ -72,7 +73,7 @@ void addRandomInstance(DrawableObject& drawable, std::mt19937& gen, float scaleM
 
 void addClock(Scene& scene, const std::vector<float>& clockVertices, const glm::vec3& position) {
     scene.drawables.emplace_back(PositionNormalColorModel(clockVertices),
-                                 ShaderProgram("./shaders/vertex_shader_clock.glsl", "./shaders/fragment_shader.glsl"));
+                                 ShaderProgram("./shaders/vertex_shader_clock.glsl", "./shaders/fragment_shader_light.glsl"));
     DrawableObject& clockDrawable = scene.drawables.back();
     clockDrawable.transformation.translate(position);
     clockDrawable.transformation.rotate(180.0f, glm::vec3(0.0f, 1.0f, 0.0f));
@@ -95,14 +96,17 @@ Scene SceneForest::create() {
     Scene scene;
 
     scene.drawables.emplace_back(PositionColorModel(groundVertices),
-                                 ShaderProgram("./shaders/vertex_shader.glsl", "./shaders/fragment_shader.glsl"));
+                                 ShaderProgram("./shaders/vertex_shader_light.glsl", "./shaders/fragment_shader_light.glsl"));
     DrawableObject& groundDrawable = scene.drawables.back();
     groundDrawable.transformation.translate(glm::vec3(0.0f, -0.01f, 0.0f));
     groundDrawable.transformation.scale(glm::vec3(FOREST_RANGE + 1.0f, 1.0f, FOREST_RANGE + 1.0f));
+    groundDrawable.updateUniforms = [](const ShaderProgram& shader) {
+        shader.setUniform("useVertexColor", 1);
+    };
 
     for (int i = 0; i < 12; ++i) {
         scene.drawables.emplace_back(PositionColorModel(bushesVertices),
-                                     ShaderProgram("./shaders/vertex_shader.glsl", "./shaders/fragment_shader_color.glsl"));
+                                     ShaderProgram("./shaders/vertex_shader_light.glsl", "./shaders/fragment_shader_light.glsl"));
         DrawableObject& bushDrawable = scene.drawables.back();
         addRandomInstance(bushDrawable, gen, 0.12f, 0.2f);
         bushDrawable.updateUniforms = [](const ShaderProgram& shader) {
@@ -123,7 +127,7 @@ Scene SceneForest::create() {
     }
 
     scene.drawables.emplace_back(PositionColorModel(sphereVertices),
-                                 ShaderProgram("./shaders/vertex_shader.glsl", "./shaders/fragment_shader_color.glsl"));
+                                 ShaderProgram("./shaders/vertex_shader_light.glsl", "./shaders/fragment_shader_light.glsl"));
     DrawableObject& sunDrawable = scene.drawables.back();
     sunDrawable.transformation.translate(glm::vec3(0.7f, 0.7f, 0.0f));
     sunDrawable.transformation.scale(glm::vec3(0.15f));

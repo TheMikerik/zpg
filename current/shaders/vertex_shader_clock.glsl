@@ -10,6 +10,8 @@ uniform float hourAngle;
 uniform float minuteAngle;
 uniform float secondAngle;
 
+out vec3 FragPos;
+out vec3 Normal;
 out vec3 vertexColor;
 
 mat4 rotateClockwise(float angle)
@@ -33,6 +35,9 @@ void main()
         handRotation = rotateClockwise(secondAngle);
     }
 
-    gl_Position = projectionMatrix * viewMatrix * modelMatrix * handRotation * vec4(aPos, 1.0);
+    FragPos = vec3(modelMatrix * handRotation * vec4(aPos, 1.0));
+    Normal = vec3(0.0, 0.0, 1.0);
     vertexColor = aColor;
+
+    gl_Position = projectionMatrix * viewMatrix * vec4(FragPos, 1.0);
 }

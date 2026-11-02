@@ -62,25 +62,24 @@ Kompilátor: `g++`, přepínače `-std=c++11 -Wall -g`. Knihovny z Homebrew: **G
    - `TransformGroup` skládá více transformací do jedné matice (`add` + `getMatrix`).
    - Vrcholový shader dostává matici jako uniform `modelMatrix` a počítá `gl_Position = projectionMatrix * viewMatrix * modelMatrix * vec4(aPos, 1.0)`.
 8. **Vrcholová data** jsou v `models/*.h` jako pole `float`. Shader používá pozici `aPos` (location 0) a další atributy podle modelu.
-9. **Světla** jsou ve třídě `Light` (`graphics/Light.h`). Zatím je to bodové světlo (pozice + barva), které posílá uniformy `lightPos` a `lightColor` přes `sendTo(shader)`. Ve scéně `ScenePlanets` je to Slunce v počátku.
+9. **Světla** jsou ve třídě `Light` (`graphics/Light.h`). Bodové světlo (pozice, koeficienty utlumu). `sendTo(shader)` nastaví uniformy `lightCount = 1`, `lightPos`, `attenuation`. Barva světla (bílá) a ambientní síla (0.3) jsou pevné konstanty v `fragment_shader_light.glsl`. Shader počítá osvětlení jen pokud `lightCount >= 1`, jinak vypíše jen barvu. Výčet `ShadingModel` (`LAMBERT`, `PHONG`, `BLINN`) je v `Light.h`. Ve scéně `ScenePlanets` je to Slunce v počátku.
 
 ## Shadery
 
-- `vertex_shader.glsl` — převádí pozici pomocí matic a předává barvu vrcholu.
-- `vertex_shader_light.glsl` — převádí pozici a předává světové souřadnice, normálu a barvu vrcholu (pro osvětlení; normála se bere z normalizované pozice, takže platí pro koule se středem v počátku).
-- `vertex_shader_normal.glsl` — jako `vertex_shader_light.glsl`, ale normálu bere z dat (location 1, model `PositionNormalModel`, např. UFO z OBJ). Normálu převádí chybně přes `mat3(modelMatrix)` (ukázka chyby ve scéně `SceneNormals`).
-- `vertex_shader_normal_correct.glsl` — jako `vertex_shader_normal.glsl`, ale normálu převádí správně přes inverzní transpozici `mat3(transpose(inverse(modelMatrix)))`.
-- `vertex_shader_tree.glsl`, `vertex_shader_clock.glsl` — specializované vrcholové shadery pro strom a hodiny.
-- `fragment_shader.glsl` — vypisuje barvu vrcholu.
-- `fragment_shader_color.glsl` — vypisuje uniform `objectColor`.
-- `fragment_shader_light.glsl` — ambientní + difuzní osvětlení od `Light`, barva z `objectColor`.
-- `fragment_shader_tree.glsl` — stínování podle normály, barvu listí z uniformu `leafColor`.
-- Osvětlovací modely (scéna `SceneSpheres`, 4 koule se svým modelem, všechny používají `vertex_shader_light.glsl`, světlo je ve středu):
-  - `fragment_shader_ambient.glsl` — konstantní osvětlení, jen ambientní složka.
-  - `fragment_shader_light.glsl` — Lambert: ambientní + difuzní složka.
-  - `fragment_shader_phong.glsl` — Phong: ambientní + difuzní + zrcadlová (odraz světla kolem normály).
-  - `fragment_shader_blinn.glsl` — Blinn-Phong: ambientní + difuzní + zrcadlová s half-vektorem.
-- Scéna `ScenePlanets`: Slunce používá `vertex_shader.glsl` + `fragment_shader.glsl` (bez výpočtu světla, konstantní barva z vrcholů). Planety a Měsíc používají `vertex_shader_light.glsl` + `fragment_shader_phong_color.glsl` (Phong, barva z vrcholů). Slunce je zdroj světla ve středu scény (`Light` v pozici `(0, 0, 0)`). Scéna také obsahuje UFO načtené z `models/ufo.obj` přes `OBJLoader::loadOBJ` (shader `vertex_shader_normal.glsl` + `fragment_shader_phong.glsl`, jednolitá barva z `ufo.mtl`).
+Shadery jsou sjednocené, rozlišení chování řídí uniformy. Většina scén používá jen tyto:
+
+- `vertex_shader_light.glsl` — převádí pozici, počítá světové souřadnice `FragPos` a normálu (`Normal`) a předává barvu `vertexColor`. Uniformy:
+  - `normalFromAttr` — `1` = normála je v datech (location 1, např. UFO, koule s daty), `0` = normála je `normalize(aPos)` (koule se středem v počátku).
+  - `wrongNormalMatrix` — `1` = ukázka chyby: normála se převádí jen `mat3(modelMatrix)`. Výchozí `0` = správně přes `mat3(transpose(inverse(modelMatrix)))`.
+- `fragment_shader_light.glsl` — jediný fragment shader pro všechny objekty:
+  - barva: `objectColor`, nebo barva z vrcholů když `useVertexColor = 1`,
+  - bez světla (`lightCount < 1`) se vypíše barva (původní `fragment_shader_color` / `fragment_shader`),
+  - se světlem: ambientní složka + difuzní složka s útlumem `att = 1 / (a + b·d + c·d²)` (uniform `attenuation`), zrcadlová složka podle `shadingModel` (`0` Lambert, `1` Phong, `2` Blinn), lesk `shininess` je konstanta 32, uniform `shininess` ji přepíše jen tam, kde je nastaven (`SceneSpecular`, hodnota 1),
+  - `specularOnBackSide = 1` = ukázka chyby (zrcadlová složka i na odvrácené straně); výchozí `0` = ořez tam, kde `diff == 0`.
+- Scéna `SceneSpheres`: 4 koule se stejnými shadery, jen jiný `shadingModel`: červená bez světla (jen `objectColor`), zelená `LAMBERT`, modrá `PHONG`, žlutá `BLINN`. Světlo je ve středu.
+- `vertex_shader_tree.glsl`, `fragment_shader_tree.glsl` — strom (listí podle `gl_VertexID`, stínování podle normály, barva listí z uniformu `leafColor`). Specifické, zachovány.
+- `vertex_shader_clock.glsl` — ručičky hodin (rotace podle barvy vrcholu). Specifické, zachováno. Fragment je společný `fragment_shader_light.glsl` s `useVertexColor = 1` a bez světla.
+- Scéna `ScenePlanets`: Slunce (`vertex_shader_light.glsl` + `fragment_shader_light.glsl`, bez světla, barva z vrcholů). Planety a Měsíc používají stejné shadery s `shadingModel = PHONG` a barvou z vrcholů. Slunce je zdroj světla ve středu scény (`Light` v pozici `(0, 0, 0)`). Scéna také obsahuje UFO načtené z `models/ufo.obj` přes `OBJLoader::loadOBJ` (`normalFromAttr = 1`, `PHONG`, jednolitá barva z `ufo.mtl`).
 
 Cesty k shaderům se berou relativně ke složce `current/`, proto se program musí spouštět přes `make` (nebo z `current/`).
 
@@ -88,11 +87,11 @@ Cesty k shaderům se berou relativně ke složce `current/`, proto se program mu
 
 - **Jednoduchost nade vše.** Žádné složité šablony ani zbytečné abstrakce. Dědičnost používáme jen tam, kde je zadání výslovně chce (například `Model` → `PositionColorModel`). Musí jít vysvětlit u zkoušky.
 - **Styl:** 4 mezery odsazení, složené závorky u funkcí, tříd a řídicích příkazů na stejném řádku jako hlavička (`void f() {`). Soubor `.clang-format` v `current/` to nastavuje. Pojmenované konstanty místo „magických“ čísel (např. `SUN_RADIUS`).
-- **Komentáře česky**, stručně a jen tam, kde pomáhají pochopit logiku (ne u každého řádku).
-- Scéna `SceneNormals`: dvě koule (`models/sphere.h`, `PositionNormalModel`) s nerovnoměrným škálováním `(0.3, 0.1, 0.15)`, fragment shader `fragment_shader_phong.glsl`, světlo `(0, 1, 1)`. Vlevo chybný převod normál (`vertex_shader_normal.glsl`), vpravo správný (`vertex_shader_normal_correct.glsl`). Ukazuje, že `mat3(modelMatrix) * normala` je správně jen pro shodné (rovnoměrné) škálování.
-- Scéna `SceneSpecular`: dvě koule s `PositionNormalModel`, mocnina `shininess = 1`, světlo `(0, 0, -2)` za koulemi (přivrácená strana je ve stínu). Vlevo `fragment_shader_specular_wrong.glsl` (zrcadlová složka se počítá i na odvrácené straně, chyba), vpravo `fragment_shader_specular_clipped.glsl` (zrcadlová složka se ořízne tam, kde `diff == 0`, tedy `if (diff > 0.0)`).
+- **Komentáře** nepiš, pokud logika nebo účel kódu není nezbytně nepochopitelný. Pak napiš jen krátký komentář česky, jednou větou.
+- Scéna `SceneNormals`: dvě koule (`models/sphere.h`, `PositionNormalModel`) s nerovnoměrným škálováním `(0.3, 0.1, 0.15)`, `fragment_shader_light.glsl` s `PHONG`, světlo `(0, 1, 1)`. Vlevo chybný převod normál (`wrongNormalMatrix = 1`), vpravo správný. Ukazuje, že `mat3(modelMatrix) * normala` je správně jen pro shodné (rovnoměrné) škálování.
+- Scéna `SceneSpecular`: dvě koule s `PositionNormalModel`, mocnina `shininess = 1`, světlo `(0, 0, -2)` za koulemi (přivrácená strana je ve stínu). Vlevo zrcadlová složka i na odvrácené straně (`specularOnBackSide = 1`, chyba), vpravo ořezaná tam, kde `diff == 0`.
 - Změna velikosti okna: `Application::run()` každý snímek volá `glViewport` a `camera.setAspectRatio` (správně). Klávesa `R` (`Controller::isResizeBugMode()`) tuto aktualizaci vypne, takže se viewport a poměr stran zamrznou a obraz se při změně velikosti zkresluje.
-- Scéna `SceneNightForest` (noční les, klávesa `6`): tmavé pozadí (`clearColor`), zem a mřížka stromů (`PositionNormalModel`, shader `vertex_shader_normal_correct.glsl` + `fragment_shader_night.glsl`). Jediné světlo je světluška (`Light` na pevné pozici), shader počítá ambientní složku a difuzní složku s útlumem `I = 1 / (1 + 0.7·d + 1.8·d²)`. Světluška sama je nesvítící koule (`fragment_shader_color.glsl`). Zem je škálovaná rovnoměrně.
+- Scéna `SceneNightForest` (noční les, klávesa `6`): tmavé pozadí (`clearColor`), zem a mřížka stromů (`PositionNormalModel`, `vertex_shader_light.glsl` + `fragment_shader_light.glsl`, Lambert). Jediné světlo je světluška (`Light` na pevné pozici s útlumem `I = 1 / (1 + 0.7·d + 1.8·d²)`; barva světla je stejně bílá jako ve zbytku projektu). Světluška sama je nesvítící koule (bez `lightCount`, jen `objectColor`). Zem je škálovaná rovnoměrně.
 - Nové scény dělej stejným vzorem jako `SceneForest`, `ScenePlanets` a `SceneSpheres`: třída s `static Scene create()`, registrace v `Application::createScenes()`, přidání do `makefile`, přepínání klávesou v `Controller` (`SCENE_COUNT`).
 - Nepřidávej závislosti, které nejsou v projektu ani v zadání.
 

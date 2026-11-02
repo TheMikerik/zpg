@@ -2,7 +2,7 @@
 
 #include <glm/glm.hpp>
 
-class ShaderProgram; // dopredna deklarace (kvuli krizovemu odkazu)
+class ShaderProgram;
 
 class Camera {
 public:

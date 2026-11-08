@@ -25,8 +25,8 @@ current/
 ├── .clang-format    # styl formátování (složené závorky u funkcí na stejném řádku)
 ├── src/
 │   ├── common/      # Application, Controller, main.cpp
-│   ├── graphics/    # Camera, DrawableObject, Light, Model, PositionColorModel, PositionNormalColorModel, ShaderProgram, Transformation, TransformGroup, OBJLoader
-│   └── scenes/      # Scene, SceneForest, ScenePlanets, SceneSpheres, SceneNormals, SceneSpecular, SceneNightForest
+│   ├── graphics/    # Camera, DrawableObject, Light, Model, PositionColorModel, PositionNormalColorModel, PositionNormalUVModel, Texture, ShaderProgram, Transformation, TransformGroup, OBJLoader
+│   └── scenes/      # Scene, SceneForest, ScenePlanets, SceneSpheres, SceneNormals, SceneSpecular, SceneNightForest, SceneTexture
 ├── include/         # hlavičky .h se stejnou podsložkou jako ve src/
 ├── shaders/         # GLSL shadery (.glsl)
 ├── models/          # modely jako pole float v .h (+ login.obj/.mtl)
@@ -46,8 +46,8 @@ Kompilátor: `g++`, přepínače `-std=c++11 -Wall -g`. Knihovny z Homebrew: **G
 ## Architektura (jak to funguje)
 
 1. **`main.cpp`** spustí `Application`.
-2. **`Application`** vytvoří okno GLFW (800×600, OpenGL 3.3 Core), inicializuje GLEW a vytvoří 6 scén: `SceneForest`, `ScenePlanets`, `SceneSpheres`, `SceneNormals`, `SceneSpecular` a `SceneNightForest`. Pak běží hlavní smyčka: nastaví barvu pozadí (`Scene::clearColor`), vymaže obrazovku, zavolá `update(time)` a `render()` aktuální scény, prohodí buffery a zpracuje vstup.
-3. **`Controller`** čte vstup od uživatele. Klávesy `1`–`6` přepínají scénu (`getCurrentSceneIndex()`), klávesa `Q` ukončí aplikaci, klávesa `R` přepíná chybný režim změny velikosti okna (`isResizeBugMode()`: zamrzne viewport a poměr stran).
+2. **`Application`** vytvoří okno GLFW (800×600, OpenGL 3.3 Core), inicializuje GLEW a vytvoří 7 scén: `SceneForest`, `ScenePlanets`, `SceneSpheres`, `SceneNormals`, `SceneSpecular` a `SceneNightForest` a `SceneTexture`. Pak běží hlavní smyčka: nastaví barvu pozadí (`Scene::clearColor`), vymaže obrazovku, zavolá `update(time)` a `render()` aktuální scény, prohodí buffery a zpracuje vstup.
+3. **`Controller`** čte vstup od uživatele. Klávesy `1`–`7` přepínají scénu (`getCurrentSceneIndex()`), klávesa `Q` ukončí aplikaci, klávesa `R` přepíná chybný režim změny velikosti okna (`isResizeBugMode()`: zamrzne viewport a poměr stran).
 4. **`Scene`** je jen seznam `drawables` (`std::vector<DrawableObject>`). Umí `update` a `render` pro všechny objekty.
 5. **`DrawableObject`** spojuje čtyři věci:
    - `Model` — vrcholová data nahraná do VBO/VAO,
@@ -92,6 +92,7 @@ Cesty k shaderům se berou relativně ke složce `current/`, proto se program mu
 - Scéna `SceneSpecular`: dvě koule s `PositionNormalModel`, mocnina `shininess = 1`, světlo `(0, 0, -2)` za koulemi (přivrácená strana je ve stínu). Vlevo zrcadlová složka i na odvrácené straně (`specularOnBackSide = 1`, chyba), vpravo ořezaná tam, kde `diff == 0`.
 - Změna velikosti okna: `Application::run()` každý snímek volá `glViewport` a `camera.setAspectRatio` (správně). Klávesa `R` (`Controller::isResizeBugMode()`) tuto aktualizaci vypne, takže se viewport a poměr stran zamrznou a obraz se při změně velikosti zkresluje.
 - Scéna `SceneNightForest` (noční les, klávesa `6`): tmavé pozadí (`clearColor`), zem a mřížka stromů (`PositionNormalModel`, `vertex_shader_light.glsl` + `fragment_shader_light.glsl`, Lambert). Jediné světlo je světluška (`Light` na pevné pozici s útlumem `I = 1 / (1 + 0.7·d + 1.8·d²)`; barva světla je stejně bílá jako ve zbytku projektu). Světluška sama je nesvítící koule (bez `lightCount`, jen `objectColor`). Zem je škálovaná rovnoměrně.
+- Scéna `SceneTexture` (klávesa `7`): nakloněná rovina (`models/plain_uv.h`, `PositionNormalUVModel` = 8 floatů: pozice, normála, UV) s texturou `images/grass.png`. Třída `Texture` načte obrázek přes `stb_image.h` (`include/`, implementace v `Texture.cpp`); `DrawableObject::texture` ji před kreslením naváže na jednotku 0. Shadery: atribut `aUV` (location 2), uniformy `useTexture` a `textureUnitID`; barva z textury nahradí `objectColor`, světlo (Lambert) se počítá dál. Při startu se vypíše `GL_MAX_TEXTURE_IMAGE_UNITS`.
 - Nové scény dělej stejným vzorem jako `SceneForest`, `ScenePlanets` a `SceneSpheres`: třída s `static Scene create()`, registrace v `Application::createScenes()`, přidání do `makefile`, přepínání klávesou v `Controller` (`SCENE_COUNT`).
 - Nepřidávej závislosti, které nejsou v projektu ani v zadání.
 

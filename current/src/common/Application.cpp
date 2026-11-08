@@ -5,6 +5,7 @@
 #include "SceneNormals.h"
 #include "SceneSpecular.h"
 #include "SceneNightForest.h"
+#include "SceneTexture.h"
 #include "Controller.h"
 #include <iostream>
 #include <cstdlib>
@@ -63,6 +64,9 @@ void Application::initialization() {
     glfwGetFramebufferSize(window, &width, &height);
     glViewport(0, 0, width, height);
     std::cout << "Framebuffer size: " << width << "x" << height << std::endl;
+    int textureUnits;
+    glGetIntegerv(GL_MAX_TEXTURE_IMAGE_UNITS, &textureUnits);
+    std::cout << "Texture units: " << textureUnits << std::endl;
     std::cout << "===============================\n" << std::endl;
 }
 
@@ -73,6 +77,7 @@ void Application::createScenes() {
     scenes.push_back(SceneNormals::create());
     scenes.push_back(SceneSpecular::create());
     scenes.push_back(SceneNightForest::create());
+    scenes.push_back(SceneTexture::create());
 }
 
 void Application::run() {

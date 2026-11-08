@@ -2,7 +2,7 @@
 #include <cstdlib>
 #include <iostream>
 
-Model::Model(const std::vector<float>& vertices, GLsizei floatsPerVertex, GLsizei colorOffset)
+Model::Model(const std::vector<float>& vertices, GLsizei floatsPerVertex, GLsizei colorOffset, GLsizei uvOffset)
     : VAO(0), VBO(0), vertexCount(0) {
     glGenVertexArrays(1, &VAO);
     glBindVertexArray(VAO);
@@ -16,6 +16,11 @@ Model::Model(const std::vector<float>& vertices, GLsizei floatsPerVertex, GLsize
 
     glEnableVertexAttribArray(1);
     glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, floatsPerVertex * sizeof(float), (void*)(colorOffset * sizeof(float)));
+
+    if (uvOffset > 0) {
+        glEnableVertexAttribArray(2);
+        glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, floatsPerVertex * sizeof(float), (void*)(uvOffset * sizeof(float)));
+    }
 
     glBindBuffer(GL_ARRAY_BUFFER, 0);
     glBindVertexArray(0);

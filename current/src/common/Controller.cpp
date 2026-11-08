@@ -4,7 +4,7 @@
 
 namespace {
 
-const int SCENE_COUNT = 6;
+const int SCENE_COUNT = 7;
 const float MOUSE_SENSITIVITY = 0.005f;
 const float WALK_STEP = 0.05f;
 

@@ -13,7 +13,7 @@ public:
     GLsizei getVertexCount() const { return vertexCount; }
 
 protected:
-    Model(const std::vector<float>& vertices, GLsizei floatsPerVertex, GLsizei colorOffset);
+    Model(const std::vector<float>& vertices, GLsizei floatsPerVertex, GLsizei colorOffset, GLsizei uvOffset = 0);
 
 private:
     GLuint VAO;

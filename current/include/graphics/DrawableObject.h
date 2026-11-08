@@ -1,10 +1,12 @@
 #pragma once
 
 #include "Model.h"
+#include "Texture.h"
 #include "ShaderProgram.h"
 #include "Transformation.h"
 #include "TransformNode.h"
 #include <functional>
+#include <memory>
 #include <glm/glm.hpp>
 
 using DynamicTransformation = std::function<Transformation(float time)>;
@@ -20,6 +22,7 @@ struct DrawableObject {
 
     Model model;
     ShaderProgram shader;
+    std::unique_ptr<Texture> texture;
 
     Transformation transformation;
     Transformation dynamicPart;

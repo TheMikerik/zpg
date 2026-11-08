@@ -3,10 +3,13 @@
 in vec3 FragPos;
 in vec3 Normal;
 in vec3 vertexColor;
+in vec2 uv;
 out vec4 frag_colour;
 
 uniform vec3 objectColor;
 uniform int useVertexColor;     
+uniform int useTexture;
+uniform sampler2D textureUnitID;
 
 uniform int lightCount;
 uniform vec3 lightPos;
@@ -25,6 +28,9 @@ const float SHININESS = 32.0;
 void main()
 {
     vec3 baseColor = useVertexColor == 1 ? vertexColor : objectColor;
+    if (useTexture == 1) {
+        baseColor = texture(textureUnitID, uv).rgb;
+    }
 
     if (lightCount < 1) {
         frag_colour = vec4(baseColor, 1.0);

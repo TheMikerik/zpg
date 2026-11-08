@@ -10,6 +10,7 @@ INCLUDES = \
     -Iinclude/common \
     -Iinclude/graphics \
     -Iinclude/scenes \
+    -Iinclude \
     -I/opt/homebrew/opt/glfw/include \
     -I/opt/homebrew/opt/glm/include \
     -I/opt/homebrew/opt/glew/include
@@ -38,6 +39,7 @@ SRCS = \
     src/scenes/SceneNormals.cpp \
     src/scenes/SceneSpecular.cpp \
     src/scenes/SceneNightForest.cpp \
+    src/scenes/SceneTexture.cpp \
     src/graphics/DrawableObject.cpp \
     src/graphics/Light.cpp \
     src/graphics/Camera.cpp \
@@ -45,7 +47,8 @@ SRCS = \
     src/graphics/Model.cpp \
     src/graphics/Transformation.cpp \
     src/graphics/TransformGroup.cpp \
-    src/graphics/OBJLoader.cpp
+    src/graphics/OBJLoader.cpp \
+    src/graphics/Texture.cpp
 
 # Object files
 OBJS = $(SRCS:src/%.cpp=build/%.o)

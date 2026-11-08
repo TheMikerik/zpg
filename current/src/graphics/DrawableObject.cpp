@@ -15,6 +15,9 @@ void DrawableObject::update(float time) {
 
 void DrawableObject::render() const {
     shader.use();
+    if (texture) {
+        texture->bind(0);
+    }
     if (updateUniforms) {
         updateUniforms(shader);
     }

@@ -2,6 +2,7 @@
 
 #include "Model.h"
 #include "Texture.h"
+#include "Cubemap.h"
 #include "ShaderProgram.h"
 #include "Transformation.h"
 #include "TransformNode.h"
@@ -22,7 +23,8 @@ struct DrawableObject {
 
     Model model;
     ShaderProgram shader;
-    std::unique_ptr<Texture> texture;
+    std::shared_ptr<Texture> texture;
+    std::shared_ptr<Cubemap> cubemap; // skybox
 
     Transformation transformation;
     Transformation dynamicPart;

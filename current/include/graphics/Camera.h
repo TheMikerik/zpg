@@ -11,6 +11,7 @@ public:
     void rotate(float deltaAlpha, float deltaFi);
     void moveForward(float amount);
     void moveRight(float amount);
+    void setPosition(const glm::vec3& newEye, float newFi);
     void setAspectRatio(float aspectRatio);
     void sendMatricesTo(const ShaderProgram& shader) const;
 

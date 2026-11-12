@@ -4,7 +4,7 @@
 
 namespace {
 
-const int SCENE_COUNT = 7;
+const int SCENE_COUNT = 8;
 const float MOUSE_SENSITIVITY = 0.005f;
 const float WALK_STEP = 0.05f;
 
@@ -119,6 +119,9 @@ void Controller::handleInput() {
 void Controller::switchScene(int index) {
     if (index >= 0 && index < static_cast<int>(scenes.size())) {
         currentSceneIndex = index;
+        if (scenes[index].hasCameraStart) {
+            camera.setPosition(scenes[index].cameraStart, scenes[index].cameraStartFi);
+        }
         selectedDrawableIndex = 0;
         std::cout << "Switched to Scene " << index + 1 << std::endl;
     } else {

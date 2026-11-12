@@ -37,6 +37,13 @@ void Camera::moveRight(float amount) {
     updateViewMatrix();
 }
 
+void Camera::setPosition(const glm::vec3& newEye, float newFi) {
+    eye = newEye;
+    alpha = glm::half_pi<float>();
+    fi = newFi;
+    updateViewMatrix();
+}
+
 void Camera::setAspectRatio(float aspectRatio) {
     projectionMatrix = glm::perspective(glm::radians(FOV_DEGREES), aspectRatio, Z_NEAR, Z_FAR);
 }

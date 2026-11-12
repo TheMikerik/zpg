@@ -6,6 +6,7 @@
 #include "SceneSpecular.h"
 #include "SceneNightForest.h"
 #include "SceneTexture.h"
+#include "SceneClassroom.h"
 #include "Controller.h"
 #include <iostream>
 #include <cstdlib>
@@ -78,6 +79,7 @@ void Application::createScenes() {
     scenes.push_back(SceneSpecular::create());
     scenes.push_back(SceneNightForest::create());
     scenes.push_back(SceneTexture::create());
+    scenes.push_back(SceneClassroom::create());
 }
 
 void Application::run() {

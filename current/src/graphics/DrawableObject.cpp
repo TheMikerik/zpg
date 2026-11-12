@@ -18,15 +18,22 @@ void DrawableObject::render() const {
     if (texture) {
         texture->bind(0);
     }
+    if (cubemap) {
+        cubemap->bind(0);
+        glDepthMask(GL_FALSE);
+    }
     if (updateUniforms) {
         updateUniforms(shader);
     }
 
     glm::mat4 modelMatrix = nodeMatrix * dynamicPart.getMatrix() * transformation.getMatrix();
-    shader.setUniform("modelMatrix", modelMatrix);
+    if (!cubemap) {
+        shader.setUniform("modelMatrix", modelMatrix);
+    }
     shader.applyCamera();
 
     model.bind();
     glDrawArrays(GL_TRIANGLES, 0, model.getVertexCount());
     model.unbind();
+    glDepthMask(GL_TRUE);
 }

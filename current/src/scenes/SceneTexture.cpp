@@ -22,7 +22,7 @@ Scene SceneTexture::create() {
     scene.drawables.emplace_back(PositionNormalUVModel(plainVertices),
                                  ShaderProgram("./shaders/vertex_shader_light.glsl", "./shaders/fragment_shader_light.glsl"));
     DrawableObject& plane = scene.drawables.back();
-    plane.texture.reset(new Texture("./images/grass.png"));
+    plane.texture = std::make_shared<Texture>("./images/grass.png");
     plane.transformation.rotate(PLAIN_TILT_DEGREES, glm::vec3(1.0f, 0.0f, 0.0f));
     plane.transformation.scale(glm::vec3(PLAIN_SCALE));
     plane.updateUniforms = [](const ShaderProgram& shader) {

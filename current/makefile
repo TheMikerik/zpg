@@ -40,6 +40,7 @@ SRCS = \
     src/scenes/SceneSpecular.cpp \
     src/scenes/SceneNightForest.cpp \
     src/scenes/SceneTexture.cpp \
+    src/scenes/SceneClassroom.cpp \
     src/graphics/DrawableObject.cpp \
     src/graphics/Light.cpp \
     src/graphics/Camera.cpp \
@@ -48,7 +49,8 @@ SRCS = \
     src/graphics/Transformation.cpp \
     src/graphics/TransformGroup.cpp \
     src/graphics/OBJLoader.cpp \
-    src/graphics/Texture.cpp
+    src/graphics/Texture.cpp \
+    src/graphics/Cubemap.cpp
 
 # Object files
 OBJS = $(SRCS:src/%.cpp=build/%.o)

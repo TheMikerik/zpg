@@ -6,7 +6,7 @@
 #include <iostream>
 #include <cstdlib>
 
-std::vector<float> OBJLoader::loadOBJ(const std::string& filePath) {
+std::vector<float> OBJLoader::loadOBJ(const std::string& filePath, bool withUV) {
     std::ifstream file(filePath);
     if (!file.is_open()) {
         std::cerr << "Failed to open OBJ file: " << filePath << std::endl;
@@ -15,6 +15,7 @@ std::vector<float> OBJLoader::loadOBJ(const std::string& filePath) {
 
     std::vector<glm::vec3> positions;
     std::vector<glm::vec3> normals;
+    std::vector<glm::vec2> uvs;
     std::vector<Vertex> vertices;
 
     std::string line;
@@ -32,6 +33,11 @@ std::vector<float> OBJLoader::loadOBJ(const std::string& filePath) {
             float x, y, z;
             iss >> x >> y >> z;
             normals.push_back(glm::normalize(glm::vec3(x, y, z)));
+        }
+        else if (type == "vt") {
+            float u, v;
+            iss >> u >> v;
+            uvs.push_back(glm::vec2(u, v));
         }
         else if (type == "f") {
             std::vector<std::string> faceVertices;
@@ -62,6 +68,10 @@ std::vector<float> OBJLoader::loadOBJ(const std::string& filePath) {
                     ? normals[normIndex - 1]
                     : glm::vec3(0.0f, 1.0f, 0.0f);
 
+                v.uv = (texIndex > 0 && texIndex <= uvs.size())
+                    ? uvs[texIndex - 1]
+                    : glm::vec2(0.0f);
+
                 return v;
             };
 
@@ -74,12 +84,12 @@ std::vector<float> OBJLoader::loadOBJ(const std::string& filePath) {
     }
 
     file.close();
-    return createVertexArray(vertices);
+    return createVertexArray(vertices, withUV);
 }
 
-std::vector<float> OBJLoader::createVertexArray(const std::vector<Vertex>& vertices) {
+std::vector<float> OBJLoader::createVertexArray(const std::vector<Vertex>& vertices, bool withUV) {
     std::vector<float> result;
-    result.reserve(vertices.size() * 6);
+    result.reserve(vertices.size() * (withUV ? 8 : 6));
 
     for (const auto& vertex : vertices) {
         result.push_back(vertex.position.x);
@@ -89,6 +99,11 @@ std::vector<float> OBJLoader::createVertexArray(const std::vector<Vertex>& verti
         result.push_back(vertex.normal.x);
         result.push_back(vertex.normal.y);
         result.push_back(vertex.normal.z);
+
+        if (withUV) {
+            result.push_back(vertex.uv.x);
+            result.push_back(vertex.uv.y);
+        }
     }
 
     return result;

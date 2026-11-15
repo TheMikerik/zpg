@@ -14,6 +14,7 @@ void DrawableObject::update(float time) {
 }
 
 void DrawableObject::render() const {
+    glStencilFunc(GL_ALWAYS, id, 0xFF);
     shader.use();
     if (texture) {
         texture->bind(0);

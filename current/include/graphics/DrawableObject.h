@@ -26,6 +26,8 @@ struct DrawableObject {
     std::shared_ptr<Texture> texture;
     std::shared_ptr<Cubemap> cubemap; // skybox
 
+    int id = 0; // unikatni ID zapsane do stencil bufferu (1-255)
+
     Transformation transformation;
     Transformation dynamicPart;
     glm::mat4 nodeMatrix = glm::mat4(1.0f);

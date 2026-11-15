@@ -1,5 +1,8 @@
 #include "Controller.h"
 #include "Transformation.h"
+#include "PositionColorModel.h"
+#include "../../models/tree.h"
+#include <glm/gtc/matrix_transform.hpp>
 #include <iostream>
 
 namespace {
@@ -7,6 +10,8 @@ namespace {
 const int SCENE_COUNT = 8;
 const float MOUSE_SENSITIVITY = 0.005f;
 const float WALK_STEP = 0.05f;
+const float NEW_TREE_SCALE = 0.1f;
+const glm::vec3 NEW_TREE_LEAF_COLOR(0.2f, 0.6f, 0.2f);
 
 void translateBy(DrawableObject& d, glm::vec3 offset) {
     d.transformation.translate(offset);
@@ -127,4 +132,74 @@ void Controller::switchScene(int index) {
     } else {
         std::cerr << "Invalid scene index: " << index << std::endl;
     }
+}
+
+void Controller::pickObject() {
+    bool down = glfwGetMouseButton(window, GLFW_MOUSE_BUTTON_LEFT) == GLFW_PRESS;
+    bool clicked = down && !wasMouseDown;
+    wasMouseDown = down;
+    if (!clicked) {
+        return;
+    }
+
+    GLint x, y;
+    getCursorPixel(x, y);
+
+    GLuint index = 0;
+    glReadPixels(x, y, 1, 1, GL_STENCIL_INDEX, GL_UNSIGNED_INT, &index);
+    std::cout << "Clicked: " << x << ", " << y << ", stencil: " << index << std::endl;
+
+    if (index > 0 && index <= scenes[currentSceneIndex].drawables.size()) {
+        selectedDrawableIndex = index - 1;
+        std::cout << "Selected Drawable Index: " << selectedDrawableIndex << "\n\n" << std::endl;
+    }
+}
+
+void Controller::spawnTree() {
+    bool down = glfwGetMouseButton(window, GLFW_MOUSE_BUTTON_RIGHT) == GLFW_PRESS;
+    bool clicked = down && !wasRightMouseDown;
+    wasRightMouseDown = down;
+    if (!clicked || currentSceneIndex != 0) {
+        return;
+    }
+
+    GLint x, y;
+    getCursorPixel(x, y);
+
+    GLfloat depth;
+    glReadPixels(x, y, 1, 1, GL_DEPTH_COMPONENT, GL_FLOAT, &depth);
+    if (depth >= 1.0f) {
+        return;
+    }
+    int fbW, fbH;
+    glfwGetFramebufferSize(window, &fbW, &fbH);
+    glm::vec4 viewport(0, 0, fbW, fbH);
+    glm::vec3 pos = glm::unProject(glm::vec3(x, y, depth), camera.getViewMatrix(), camera.getProjectionMatrix(), viewport);
+    std::cout << "unProject [" << pos.x << ", " << pos.y << ", " << pos.z << "]" << std::endl;
+
+    addTree(pos);
+}
+
+void Controller::getCursorPixel(GLint& x, GLint& y) const {
+    double cursorX, cursorY;
+    glfwGetCursorPos(window, &cursorX, &cursorY);
+    int winW, winH, fbW, fbH;
+    glfwGetWindowSize(window, &winW, &winH);
+    glfwGetFramebufferSize(window, &fbW, &fbH);
+    x = static_cast<GLint>(cursorX * fbW / winW);
+    y = fbH - static_cast<GLint>(cursorY * fbH / winH);
+}
+
+void Controller::addTree(const glm::vec3& position) {
+    std::vector<DrawableObject>& drawables = scenes[currentSceneIndex].drawables;
+    drawables.emplace_back(PositionColorModel(std::vector<float>(std::begin(tree), std::end(tree))),
+                           ShaderProgram("./shaders/vertex_shader_tree.glsl", "./shaders/fragment_shader_tree.glsl"));
+    DrawableObject& newTree = drawables.back();
+    newTree.id = drawables.size();
+    newTree.shader.setCamera(&camera);
+    newTree.transformation.translate(position);
+    newTree.transformation.scale(glm::vec3(NEW_TREE_SCALE));
+    newTree.updateUniforms = [](const ShaderProgram& shader) {
+        shader.setUniform("leafColor", NEW_TREE_LEAF_COLOR);
+    };
 }

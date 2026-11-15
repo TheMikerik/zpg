@@ -84,10 +84,16 @@ void Application::createScenes() {
 
 void Application::run() {
     glEnable(GL_DEPTH_TEST);
+    glEnable(GL_STENCIL_TEST);
+    glStencilOp(GL_KEEP, GL_KEEP, GL_REPLACE);
 
     createScenes();
     for (Scene& scene : scenes) {
         scene.setCamera(&camera);
+        int nextId = 1;
+        for (DrawableObject& drawable : scene.drawables) {
+            drawable.id = nextId++;
+        }
     }
     Controller controller(window, scenes, camera);
 
@@ -104,12 +110,15 @@ void Application::run() {
             const glm::vec3& clear = scenes[currentSceneIndex].clearColor;
             glClearColor(clear.r, clear.g, clear.b, 1.0f);
         }
-        glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+        glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
 
         if (currentSceneIndex >= 0 && currentSceneIndex < scenes.size()) {
             scenes[currentSceneIndex].update(static_cast<float>(glfwGetTime()));
             scenes[currentSceneIndex].render();
         }
+
+        controller.pickObject();
+        controller.spawnTree();
 
         glfwSwapBuffers(window);
         glfwPollEvents();
